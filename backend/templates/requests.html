@@ -1,0 +1,7 @@
+{% for request in requests %}
+    <h2>{{request.user}}</h2>
+    <p>{{request.dateS}}</p>
+    <p>{{request.dateE}}</p>
+    <p>{{request.category}}</p>
+    <button onclick="location.href='{% url 'approveRequests' RequestID=request.RequestID %}'">Approve</button>
+{% endfor %}
