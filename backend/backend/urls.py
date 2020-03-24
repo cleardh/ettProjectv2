@@ -35,5 +35,5 @@ urlpatterns = [
     url(r'^request/', requestView),
     url(r'^requests/', requestListView),
     url(r'^approved/', approvedRequests, name='approvedRequests'),
-    url(r'^approve/(?P<RequestID>\d+)/$', approveRequests, name='approveRequests'),
+    url(r'^approve/(?P<pk>\d+)/$', approveRequests, name='approveRequests'),
 ]

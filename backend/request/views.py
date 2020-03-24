@@ -3,6 +3,7 @@ from .models import Request
 from .forms import RequestForm
 from django.contrib.auth.models import User
 from category.models import Category
+from django.http import HttpResponse
 
 def requestView(request):
     form = RequestForm(request.POST or None)
@@ -11,7 +12,7 @@ def requestView(request):
             user = request.user,
             dateS = request.POST['dateS'],
             dateE = request.POST['dateE'],
-            category = Category(request.POST['category']),      
+            category = Category(request.POST['category']),
             )
         new_request.save()
 
@@ -38,6 +39,8 @@ def approvedRequests(request):
     return render(request, "requests.html", context)
 
     
-def approveRequests(request, RequestID = None):
-    request = Request.objects.get(id=RequestID)
-    return render(request, "requests.html")
+def approveRequests(request, pk):    
+    req = Request.objects.get(RequestID=pk)    
+    req.isConfirmed = True
+    req.save()    
+    return HttpResponse("Done")
