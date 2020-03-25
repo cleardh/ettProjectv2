@@ -7,7 +7,7 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
         
     CategoryID   = models.AutoField(primary_key=True, null=False)
-    name         = models.CharField(max_length=30, null=False)    
+    name         = models.CharField(max_length=30, null=False, unique=True)    
     limit        = models.IntegerField(null=False)
     isUnlimited  = models.BooleanField(null=False)
 

@@ -6,7 +6,7 @@ class Jobs(models.Model):
     class Meta:
         verbose_name_plural = "Jobs" 
     JobID   = models.AutoField(primary_key=True, null=False)
-    title   = models.CharField(max_length=30, null=False)
+    title   = models.CharField(max_length=30, null=False, unique=True)
 
     def __str__(self):
         return str(self.title)

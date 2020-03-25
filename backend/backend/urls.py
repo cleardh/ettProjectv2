@@ -22,10 +22,14 @@ from jobs.views import jobs_create_view
 from userorganization.views import org_create_view
 from register.views import profile_create_view
 from request.views import requestView, requestListView, approvedRequests, approveRequests
+#from django.views.generic import TemplateView
+from rest_framework import routers
 
 urlpatterns = [    
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
+    path('test/', include(router.urls)),
+    #path('',TemplateView.as_view(template_name='index.html')),
     url(r'^$', home),
     url(r'^login/', login),    
     url(r'^register/', profile_create_view),
