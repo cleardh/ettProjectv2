@@ -1,0 +1,6 @@
+{% load socialaccount %}
+{% providers_media_js %}
+<html>    
+    <p>Welcome, {{ user.username }} !</p>       
+    <a href="{% provider_login_url 'google' %}">Login with Google</a>    
+</html>
