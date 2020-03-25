@@ -6,6 +6,11 @@ from jobs.models import Jobs
 from django.contrib.auth.models import User
 from backend.decorators import unauthenticated_user, allowed_users
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import ProfileSerializer
+from .models import Profile
+
 @unauthenticated_user
 def profile_create_view(request):
     form = ProfileForm(request.POST or None)
@@ -27,3 +32,10 @@ def profile_create_view(request):
         }
 
     return render(request, "register.html", context)
+
+
+class ProfileView(APIView):
+    def get(self, request):
+        prof = Profile.objects.all()
+        serializer = ProfileSerializer(prof, many=True)
+        return Response(serializer.data)

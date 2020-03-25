@@ -4,6 +4,13 @@ from .forms import RequestForm
 from django.contrib.auth.models import User
 from category.models import Category
 from django.http import HttpResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import RequestSerializer
+from .models import Request
 
 def requestView(request):
     form = RequestForm(request.POST or None)
@@ -44,3 +51,10 @@ def approveRequests(request, pk):
     req.isConfirmed = True
     req.save()    
     return HttpResponse("Done")
+
+
+class RequestView(APIView):
+    def get(self, request):
+        req = Request.objects.all()
+        serializer = RequestSerializer(req, many=True)
+        return Response(serializer.data)
