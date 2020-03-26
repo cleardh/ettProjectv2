@@ -27,3 +27,10 @@ class JobDetailView(APIView):
     def delete(self, request, pk):
         Jobs.objects.filter(pk=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class JobDetailViewT(APIView):
+
+    def get(self, request, title):        
+        job = get_object_or_404(Jobs, title=title)
+        serializer = JobSerializer(job)
+        return Response(serializer.data)

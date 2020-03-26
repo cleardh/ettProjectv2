@@ -27,3 +27,10 @@ class CategoryDetailView(APIView):
     def delete(self, request, pk):
         Category.objects.filter(pk=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class CategoryDetailViewT(APIView):
+
+    def get(self, request, name):        
+        category = get_object_or_404(Category, name=name)
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
