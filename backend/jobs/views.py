@@ -1,30 +1,29 @@
-from django.shortcuts import render
-from django import forms
-from .forms import JobsForm
-from .models import Jobs
-from backend.decorators import unauthenticated_user, allowed_users
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from .serializers import JobSerializer
 from .models import Jobs
-
-@unauthenticated_user
-@allowed_users(allowed_roles=['admin'])
-def jobs_create_view(request):
-    form = JobsForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-
-    context = {
-        'form': form
-        }
-
-    return render(request, "jobs.html", context)
-
+from django.shortcuts import get_object_or_404
 
 class JobView(APIView):
     def get(self, request):
-        categories = Jobs.objects.all()
-        serializer = JobSerializer(categories, many=True)
+        jobs = Jobs.objects.all()
+        serializer = JobSerializer(jobs, many=True)
         return Response(serializer.data)
+
+    def post(self, request):
+        serializer = JobSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+class JobDetailView(APIView):
+    
+    def get(self, request, pk):
+        job = get_object_or_404(Jobs, pk=pk)
+        serializer = JobSerializer(job)
+        return Response(serializer.data)
+
+    def delete(self, request, pk):
+        Jobs.objects.filter(pk=pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
