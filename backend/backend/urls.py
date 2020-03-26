@@ -46,6 +46,5 @@ urlpatterns = [
     url(r'^request/(?P<pk>\d+)/$', getRequestByID),
     url(r'^request-approve/(?P<pk>\d+)/$', approveRequestByID),
     url(r'^request-delete/(?P<pk>\d+)/$', deleteRequest),
-    
 
 ]
