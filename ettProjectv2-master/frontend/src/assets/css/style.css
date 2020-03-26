@@ -320,10 +320,11 @@ footer {
   position: relative;
   left: 0;
   bottom: 0;
+  font-weight: 600;
   width: 100%;
   line-height: 4em;
-  background-color: #325d88;
-  color: white;
+  background: transparent;
+  color: #325d88;
   text-align: center;
 }
 

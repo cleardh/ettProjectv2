@@ -9,14 +9,31 @@ import {
 } from './types';
 import { tokenConfig } from './auth';
 
-export const addRequest = formData => (dispatch, getState) => {
+export const addRequest = (formData, calendarId) => (dispatch, getState) => {
   axios
     .post('http://localhost:5000/api/request', formData, tokenConfig(getState))
     .then(res => {
-      dispatch({
-        type: ADD_REQUEST,
-        payload: res.data
-      });
+      axios
+        .post(
+          'http://localhost:5000/api/calendar',
+          {
+            calendarId: calendarId,
+            requestId: res.data._id
+          },
+          tokenConfig(getState)
+        )
+        .then(res => {
+          dispatch({
+            type: ADD_REQUEST,
+            payload: res.data
+          });
+        })
+        .catch(err =>
+          dispatch({
+            type: REQUEST_ERROR,
+            payload: { msg: err.message }
+          })
+        );
     })
     .catch(err =>
       dispatch({
@@ -26,11 +43,24 @@ export const addRequest = formData => (dispatch, getState) => {
     );
 };
 
-export const deleteRequest = id => (dispatch, getState) => {
+export const deleteRequest = (calendarId, id) => (dispatch, getState) => {
   if (window.confirm('Do you want to delete this request for sure?')) {
     axios
       .delete(`http://localhost:5000/api/request/${id}`, tokenConfig(getState))
-      .then(res => dispatch({ type: DELETE_REQUEST, payload: res.data }))
+      .then(res => {
+        axios
+          .delete(
+            `http://localhost:5000/api/calendar/${calendarId}/${res.data.googleEventId}`,
+            tokenConfig(getState)
+          )
+          .then(res => dispatch({ type: DELETE_REQUEST, payload: res.data }))
+          .catch(err =>
+            dispatch({
+              type: REQUEST_ERROR,
+              payload: { msg: err.message }
+            })
+          );
+      })
       .catch(err =>
         dispatch({
           type: REQUEST_ERROR,

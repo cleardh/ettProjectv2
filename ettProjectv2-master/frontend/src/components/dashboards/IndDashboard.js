@@ -157,11 +157,14 @@ const IndDashboard = ({
                                 _email &&
                                 category.category &&
                                 _date &&
-                                addRequest({
-                                  email: _email,
-                                  date: _date,
-                                  category: category.category
-                                })
+                                addRequest(
+                                  {
+                                    email: _email,
+                                    date: _date,
+                                    category: category.category
+                                  },
+                                  employee.employee.calendarId
+                                )
                               }
                             >
                               Request
@@ -173,7 +176,10 @@ const IndDashboard = ({
                               className='btn btn-secondary btn-lg btn-block'
                               onClick={e =>
                                 selectedEvent &&
-                                deleteRequest(selectedEvent._id)
+                                deleteRequest(
+                                  employee.employee.calendarId,
+                                  selectedEvent._id
+                                )
                               }
                             >
                               Revoke

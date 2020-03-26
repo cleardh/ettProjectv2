@@ -90,7 +90,7 @@ const ManageCategory = ({
                           </td>
                           <td align='center'>
                             <span
-                              class='badge badge-pill color-code'
+                              className='badge badge-pill color-code'
                               style={{ background: c.color }}
                             >
                               {'  '}
@@ -190,9 +190,6 @@ const ManageCategory = ({
                     </tr>
                   </tbody>
                 </table>
-                <button type='submit' className='btn btn-primary block'>
-                  Save
-                </button>
               </fieldset>
             </form>
           </div>
