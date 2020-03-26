@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'category',
     'organization',
     'request',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

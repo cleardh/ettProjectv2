@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Roles
 
-class RoleSerializer(serializers.HyperlinkedModelSerializer):
+class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Roles
-        fields = ['RoleID', 'title', 'isAdmin']
+        fields = 'RoleID', 'title', 'isAdmin'

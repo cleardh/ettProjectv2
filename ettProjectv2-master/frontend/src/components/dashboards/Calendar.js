@@ -219,6 +219,16 @@ export default class Calendar extends React.Component {
           `${this.state.selectedDay.year}-${this.state.selectedDay.month}-${d}`
         ).format('YYYY-MM-DD');
         this.props.data(data);
+        const eventList = this.props.events.filter(
+          e =>
+            moment(e.date).format('Y') === this.year() &&
+            moment(e.date).format('MMMM') === this.month()
+        );
+        eventList.map(e => {
+          if (moment(e.date).date() + 1 === d) {
+            this.props.selectedEvent(e);
+          }
+        });
       }
     );
   };
@@ -242,10 +252,40 @@ export default class Calendar extends React.Component {
         d === this.state.today.date()
           ? 'today'
           : '';
+      const eventList = this.props.events.filter(
+        e =>
+          moment(e.date).format('Y') === this.year() &&
+          moment(e.date).format('MMMM') === this.month()
+      );
+      const style = eventList.map(e =>
+        moment(e.date).date() + 1 === d && e.isConfirmed
+          ? {
+              background: `${e.category.color}`
+            }
+          : moment(e.date).date() + 1 === d &&
+            !e.isConfirmed && {
+              background: `${e.category.color}`
+            }
+      );
+
+      let background = {
+        background: '',
+        borderRadius: 40,
+        WebkitBorderRadius: 40
+      };
+      style.map(s => {
+        if (s.background) {
+          background = {
+            ...background,
+            background: s.background
+          };
+        }
+      });
       daysInMonth.push(
         <td
           key={d}
           className={`calendar-day ${currentDay}`}
+          style={background}
           onClick={e => {
             this.onDayClick(e, d);
           }}

@@ -1,3 +1,7 @@
+html {
+  background: #325d88;
+}
+
 body {
   background: #eaf1f1;
 }
@@ -121,6 +125,7 @@ body {
 .media img {
   border-radius: 50%;
   width: 8em;
+  margin: auto;
 }
 
 .media-body {
@@ -275,6 +280,7 @@ ul {
 
 .category {
   width: 100%;
+  border: none;
 }
 
 .img-wrapper img {
@@ -311,10 +317,14 @@ ul {
 }
 
 footer {
-  color: #eaf1f1;
   position: relative;
-  left: 95%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  line-height: 4em;
+  background-color: #325d88;
+  color: white;
+  text-align: center;
 }
 
 .wrapper {
@@ -474,4 +484,13 @@ legend {
 
 #about-title {
   border: none;
+}
+
+.color-code {
+  width: 1em;
+}
+
+.category-input {
+  width: 4em;
+  margin-top: 1em;
 }

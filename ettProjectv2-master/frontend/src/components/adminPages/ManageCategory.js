@@ -30,10 +30,11 @@ const ManageCategory = ({
   const [newCategory, setNewCategory] = useState({
     title: '',
     limit: '',
-    isUnlimited: false
+    isUnlimited: false,
+    color: ''
   });
 
-  const { title, limit, isUnlimited } = newCategory;
+  const { title, limit, isUnlimited, color } = newCategory;
 
   const onChange = e => {
     setNewCategory({
@@ -41,8 +42,6 @@ const ManageCategory = ({
       [e.target.name]: e.target.value
     });
   };
-
-  console.log(newCategory);
 
   return (
     <Fragment>
@@ -60,6 +59,7 @@ const ManageCategory = ({
                       <th scope='col'></th>
                       <th scope='col'>Max</th>
                       <th scope='col'>Unlimited</th>
+                      <th scope='col'>Color Code</th>
                       <th scope='col'></th>
                     </tr>
                   </thead>
@@ -73,7 +73,7 @@ const ManageCategory = ({
                           ) : (
                             <td>{c.limit}</td>
                           )}
-                          <td>
+                          <td align='center'>
                             <div className='custom-control custom-switch'>
                               <input
                                 type='checkbox'
@@ -87,6 +87,14 @@ const ManageCategory = ({
                                 htmlFor={c.title}
                               ></label>
                             </div>
+                          </td>
+                          <td align='center'>
+                            <span
+                              class='badge badge-pill color-code'
+                              style={{ background: c.color }}
+                            >
+                              {'  '}
+                            </span>
                           </td>
                           <td>
                             <button
@@ -106,7 +114,8 @@ const ManageCategory = ({
                         <div className='form-group'>
                           <input
                             type='text'
-                            className='form-control'
+                            className='form-control category-input'
+                            style={{ width: '6em' }}
                             placeholder='Category Title'
                             name='title'
                             value={title}
@@ -119,7 +128,7 @@ const ManageCategory = ({
                           <input
                             type='number'
                             min='1'
-                            className='form-control add-max'
+                            className='form-control add-max category-input'
                             name='limit'
                             value={limit}
                             onChange={e => onChange(e)}
@@ -127,7 +136,7 @@ const ManageCategory = ({
                           />
                         </div>
                       </td>
-                      <td>
+                      <td align='center'>
                         <div className='custom-control custom-switch'>
                           <input
                             type='checkbox'
@@ -147,6 +156,18 @@ const ManageCategory = ({
                             className='custom-control-label'
                             htmlFor='toggle'
                           ></label>
+                        </div>
+                      </td>
+                      <td align='center'>
+                        <div className='form-group'>
+                          <input
+                            type='text'
+                            className='form-control category-input'
+                            placeholder='#'
+                            name='color'
+                            value={color}
+                            onChange={e => onChange(e)}
+                          />
                         </div>
                       </td>
                       <td>

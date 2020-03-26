@@ -3,18 +3,29 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import Loading from '../layouts/Loading';
 import IndNavbar from '../layouts/navbars/IndNavbar';
 import Calendar from './Calendar';
 import { getAllCategories, getCategoryByTitle } from '../../actions/category';
-import { addRequest } from '../../actions/request';
+import {
+  addRequest,
+  deleteRequest,
+  getRequestsByEmployee
+} from '../../actions/request';
+import { getEmployeeByEmail } from '../../actions/employee';
 
 const IndDashboard = ({
   email,
   auth: { token, user },
   category,
+  employee,
+  request,
   getAllCategories,
   getCategoryByTitle,
-  addRequest
+  addRequest,
+  deleteRequest,
+  getRequestsByEmployee,
+  getEmployeeByEmail
 }) => {
   const [formData, setFormData] = useState({
     _email: email ? email : '',
@@ -22,14 +33,26 @@ const IndDashboard = ({
   });
   const { _email, _date } = formData;
 
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   useEffect(() => {
     getAllCategories();
   }, [getAllCategories]);
 
-  if (!token || !localStorage.token) {
+  useEffect(() => {
+    getEmployeeByEmail(email ? email : user && user.email);
+  }, [getEmployeeByEmail, email, user]);
+
+  useEffect(() => {
+    if (employee.employee) {
+      getRequestsByEmployee(employee.employee._id);
+    }
+  }, [getRequestsByEmployee, employee.employee, request.requests.length]);
+
+  if (!token || !localStorage.token || !user) {
     return <Redirect to='/' />;
-  } else if (!user) {
-    return <Redirect to='/dashboard/individual' />;
+  } else if (!employee.employee) {
+    return <Loading />;
   } else {
     return (
       <Fragment>
@@ -38,24 +61,24 @@ const IndDashboard = ({
           <div className='grid-item info-grid'>
             <div className='media'>
               <img
-                src={user.image}
+                src={employee.employee.image}
                 className='align-self-start mr-3'
                 alt='employee'
               />
               <div className='media-body'>
-                <h4 className='mb-2'>{`${user.firstName} ${user.lastName}`}</h4>
+                <h4 className='mb-2'>{`${employee.employee.firstName} ${employee.employee.lastName}`}</h4>
                 <table className='tbl'>
                   <tbody>
                     <tr>
-                      <td>{user.job.title}</td>
-                      <td>{user.role.title}</td>
+                      <td>{employee.employee.job.title}</td>
+                      <td>{employee.employee.role.title}</td>
                     </tr>
                     <tr>
-                      <td>{user.email}</td>
-                      <td>{user.phone}</td>
+                      <td>{employee.employee.email}</td>
+                      <td>{employee.employee.phone}</td>
                     </tr>
                     <tr>
-                      <td>{`Since ${moment(user.dateHired).format(
+                      <td>{`Since ${moment(employee.employee.dateHired).format(
                         'MMM DD, YYYY'
                       )}`}</td>
                       <td></td>
@@ -88,6 +111,8 @@ const IndDashboard = ({
                   <td>
                     <Calendar
                       data={data => setFormData({ ...formData, _date: data })}
+                      events={request.requests}
+                      selectedEvent={e => setSelectedEvent(e)}
                     />
                   </td>
                 </tr>
@@ -103,21 +128,22 @@ const IndDashboard = ({
                         <tr>
                           {category.categories.length > 0 &&
                             category.categories.map(c => (
-                              <td>
+                              <td key={c._id}>
                                 <button
                                   type='button'
-                                  className='btn btn-danger category'
+                                  className='btn btn-secondary category'
+                                  style={{ background: c.color }}
+                                  data-toggle='tooltip'
+                                  title={c.title}
                                   onClick={e => {
                                     setFormData({
                                       ...formData,
-                                      _email: user.email
+                                      _email: employee.employee.email
                                     });
                                     getCategoryByTitle(c.title);
                                   }}
                                 >
-                                  <span>
-                                    <small>{c.title}</small>
-                                  </span>
+                                  <small>{c.title}</small>
                                 </button>
                               </td>
                             ))}
@@ -145,6 +171,10 @@ const IndDashboard = ({
                             <button
                               type='button'
                               className='btn btn-secondary btn-lg btn-block'
+                              onClick={e =>
+                                selectedEvent &&
+                                deleteRequest(selectedEvent._id)
+                              }
                             >
                               Revoke
                             </button>
@@ -166,18 +196,28 @@ const IndDashboard = ({
 IndDashboard.propTypes = {
   auth: PropTypes.object,
   category: PropTypes.object,
+  employee: PropTypes.object,
+  request: PropTypes.object,
   getAllCategories: PropTypes.func.isRequired,
   getCategoryByTitle: PropTypes.func.isRequired,
-  addRequest: PropTypes.func.isRequired
+  addRequest: PropTypes.func.isRequired,
+  deleteRequest: PropTypes.func.isRequired,
+  getRequestsByEmployee: PropTypes.func.isRequired,
+  getEmployeeByEmail: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  category: state.category
+  category: state.category,
+  employee: state.employee,
+  request: state.request
 });
 
 export default connect(mapStateToProps, {
   getAllCategories,
   getCategoryByTitle,
-  addRequest
+  addRequest,
+  deleteRequest,
+  getEmployeeByEmail,
+  getRequestsByEmployee
 })(IndDashboard);

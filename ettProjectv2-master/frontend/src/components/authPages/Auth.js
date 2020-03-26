@@ -11,8 +11,6 @@ const Auth = ({ auth, authenticate }) => {
   }, [authenticate]);
 
   if (auth.user) {
-    console.log(auth.user);
-
     if (auth.user.calendarId === '') {
       return <Redirect to='/register' />;
     } else {

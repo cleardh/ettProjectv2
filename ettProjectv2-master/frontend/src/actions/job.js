@@ -12,6 +12,7 @@ import { tokenConfig } from './auth';
 export const addJob = formData => (dispatch, getState) => {
   axios
     .post('http://localhost:5000/api/job', formData, tokenConfig(getState))
+    // .post('http://localhost:8000/job', formData)
     .then(res => {
       dispatch({
         type: ADD_JOB,
