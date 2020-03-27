@@ -35,12 +35,13 @@ export const addRequest = (formData, calendarId) => (dispatch, getState) => {
           })
         );
     })
-    .catch(err =>
+    .catch(err => {
+      window.alert('Invalid request');
       dispatch({
         type: REQUEST_ERROR,
         payload: { msg: err.message }
-      })
-    );
+      });
+    });
 };
 
 export const deleteRequest = (calendarId, id) => (dispatch, getState) => {
@@ -70,9 +71,23 @@ export const deleteRequest = (calendarId, id) => (dispatch, getState) => {
   }
 };
 
-export const getRequestsByEmployee = employeeId => (dispatch, getState) => {
-  dispatch({ type: CLEAR_REQUEST });
+export const generateReport = dateRange => (dispatch, getState) => {
+  axios
+    .post(
+      'http://localhost:5000/api/request/report',
+      dateRange,
+      tokenConfig(getState)
+    )
+    .then(res => window.alert(`${res.data.file} is generated successfully`))
+    .catch(err =>
+      dispatch({
+        type: REQUEST_ERROR,
+        payload: { msg: err.message }
+      })
+    );
+};
 
+export const getRequestsByEmployee = employeeId => (dispatch, getState) => {
   axios
     .get(
       `http://localhost:5000/api/request/${employeeId}`,
@@ -96,8 +111,6 @@ export const getConfirmedRequestsByEmployee = employeeId => (
   dispatch,
   getState
 ) => {
-  dispatch({ type: CLEAR_REQUEST });
-
   axios
     .get(
       `http://localhost:5000/api/request/confirmed/${employeeId}`,
@@ -121,8 +134,6 @@ export const getConfirmedRequestsByEmployeeCategory = (
   employeeId,
   categoryId
 ) => (dispatch, getState) => {
-  dispatch({ type: CLEAR_REQUEST });
-
   axios
     .get(
       `http://localhost:5000/api/request/confirmed/${employeeId}/${categoryId}`,

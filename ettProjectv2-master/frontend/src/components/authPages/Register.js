@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import Loading from '../layouts/Loading';
 import { getAllJobs, getJobByTitle } from '../../actions/job';
 import { getAllRoles, getRoleByTitle } from '../../actions/role';
-import { register } from '../../actions/auth';
+import { register, logout } from '../../actions/auth';
 
 const Register = ({
   job,
@@ -17,6 +17,7 @@ const Register = ({
   getJobByTitle,
   getRoleByTitle,
   register,
+  logout,
   history
 }) => {
   useEffect(() => {
@@ -58,7 +59,6 @@ const Register = ({
     };
     register(body, user._id, history);
   };
-  console.log(formData);
 
   return (
     <Fragment>
@@ -150,11 +150,18 @@ const Register = ({
                 <button type='submit' className='btn btn-primary block'>
                   Submit
                 </button>
+                <button
+                  type='button'
+                  className='btn btn-danger block'
+                  onClick={e => logout()}
+                >
+                  Cancel
+                </button>
               </form>
             </div>
           </div>
-
           <div className='overlay'></div>
+          <footer className='landing-footer'>&copy; 2020 Team DJK</footer>;
         </Fragment>
       ) : (
         <Fragment>
@@ -171,6 +178,7 @@ Register.propTypes = {
   getRoleByTitle: PropTypes.func.isRequired,
   getJobByTitle: PropTypes.func.isRequired,
   register: PropTypes.func.isRequired,
+  logout: PropTypes.func.isRequired,
   job: PropTypes.object.isRequired,
   role: PropTypes.object.isRequired,
   user: PropTypes.object
@@ -187,5 +195,6 @@ export default connect(mapStateToProps, {
   getAllRoles,
   getRoleByTitle,
   getJobByTitle,
-  register
+  register,
+  logout
 })(withRouter(Register));

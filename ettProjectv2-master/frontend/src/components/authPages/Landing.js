@@ -31,16 +31,17 @@ function Landing({ login, isAuthenticated }) {
         </div>
         <div className='signin'>
           <img
+            className='btn-google'
             onMouseOver={e => (e.currentTarget.src = google_sign_in_pressed)}
             onMouseOut={e => (e.currentTarget.src = google_sign_in)}
             onClick={e => onClick(e)}
             src={google_sign_in}
-            width='220rem'
             alt='google sign in'
           />
         </div>
       </div>
       <div className='overlay'></div>
+      <footer className='landing-footer'>&copy; 2020 Team DJK</footer>
     </Fragment>
   );
 }

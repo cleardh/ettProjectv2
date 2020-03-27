@@ -299,12 +299,18 @@ ul {
   opacity: 0.9;
 }
 
+.btn-google {
+  width: 60%;
+  cursor: pointer;
+}
+
 .signin {
   position: absolute;
   top: 55%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
+  text-align: center;
 }
 
 .title {
@@ -323,9 +329,18 @@ footer {
   font-weight: 600;
   width: 100%;
   line-height: 4em;
-  background: transparent;
-  color: #325d88;
+  color: #fff;
+  background: #244463;
   text-align: center;
+}
+
+.landing-footer {
+  position: fixed;
+  background: transparent;
+}
+
+.name-on-dashboard {
+  font-weight: 600;
 }
 
 .wrapper {
@@ -339,7 +354,7 @@ footer {
   max-width: 200px;
   min-height: 100vh;
   background: #244463;
-  margin-top: 5px;
+  margin: 5px 0;
 }
 
 .admin-list {

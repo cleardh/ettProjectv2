@@ -214,7 +214,6 @@ export default class Calendar extends React.Component {
             `${this.state.selectedDay.year}-${this.state.selectedDay.month}-${d}`
           ).format('YYYY-MM-DD')
         );
-        console.log(this.state.selectedDay);
         const data = moment(
           `${this.state.selectedDay.year}-${this.state.selectedDay.month}-${d}`
         ).format('YYYY-MM-DD');
@@ -224,11 +223,10 @@ export default class Calendar extends React.Component {
             moment(e.date).format('Y') === this.year() &&
             moment(e.date).format('MMMM') === this.month()
         );
-        eventList.map(e => {
-          if (moment(e.date).date() + 1 === d) {
-            this.props.selectedEvent(e);
-          }
-        });
+
+        eventList.map(
+          e => moment(e.date).date() + 1 === d && this.props.selectedEvent(e)
+        );
       }
     );
   };
@@ -280,6 +278,7 @@ export default class Calendar extends React.Component {
             background: s.background
           };
         }
+        return background;
       });
       daysInMonth.push(
         <td

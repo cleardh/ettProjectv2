@@ -12,6 +12,7 @@ const Loading = () => {
           <div className='circle'></div>
         </div>
       </div>
+      <footer className='landing-footer'>&copy; 2020 Team DJK</footer>;
     </Fragment>
   );
 };

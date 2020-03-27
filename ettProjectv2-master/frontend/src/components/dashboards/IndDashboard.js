@@ -29,9 +29,10 @@ const IndDashboard = ({
 }) => {
   const [formData, setFormData] = useState({
     _email: email ? email : '',
-    _date: ''
+    _date: '',
+    _category: ''
   });
-  const { _email, _date } = formData;
+  const { _email, _date, _category } = formData;
 
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -48,6 +49,12 @@ const IndDashboard = ({
       getRequestsByEmployee(employee.employee._id);
     }
   }, [getRequestsByEmployee, employee.employee, request.requests.length]);
+
+  useEffect(() => {
+    if (_category) {
+      getCategoryByTitle(_category);
+    }
+  }, [getCategoryByTitle, _category]);
 
   if (!token || !localStorage.token || !user) {
     return <Redirect to='/' />;
@@ -66,7 +73,7 @@ const IndDashboard = ({
                 alt='employee'
               />
               <div className='media-body'>
-                <h4 className='mb-2'>{`${employee.employee.firstName} ${employee.employee.lastName}`}</h4>
+                <h4 className='mb-2 name-on-dashboard'>{`${employee.employee.firstName} ${employee.employee.lastName}`}</h4>
                 <table className='tbl'>
                   <tbody>
                     <tr>
@@ -112,7 +119,10 @@ const IndDashboard = ({
                     <Calendar
                       data={data => setFormData({ ...formData, _date: data })}
                       events={request.requests}
-                      selectedEvent={e => setSelectedEvent(e)}
+                      selectedEvent={e => {
+                        setSelectedEvent(e);
+                        console.log(e);
+                      }}
                     />
                   </td>
                 </tr>
@@ -135,13 +145,15 @@ const IndDashboard = ({
                                   style={{ background: c.color }}
                                   data-toggle='tooltip'
                                   title={c.title}
-                                  onClick={e => {
+                                  name='_category'
+                                  value={_category}
+                                  onClick={e =>
                                     setFormData({
                                       ...formData,
+                                      _category: c.title,
                                       _email: employee.employee.email
-                                    });
-                                    getCategoryByTitle(c.title);
-                                  }}
+                                    })
+                                  }
                                 >
                                   <small>{c.title}</small>
                                 </button>
@@ -153,18 +165,26 @@ const IndDashboard = ({
                             <button
                               type='button'
                               className='btn btn-primary btn-lg btn-block'
-                              onClick={e =>
+                              onClick={e => {
                                 _email &&
-                                category.category &&
-                                _date &&
-                                addRequest(
-                                  {
-                                    email: _email,
-                                    date: _date,
-                                    category: category.category
-                                  },
-                                  employee.employee.calendarId
-                                )
+                                  category.category &&
+                                  _date &&
+                                  addRequest(
+                                    {
+                                      email: _email,
+                                      date: _date,
+                                      category: category.category
+                                    },
+                                    employee.employee.calendarId
+                                  );
+                                setFormData({
+                                  _email: '',
+                                  _date: '',
+                                  _category: ''
+                                });
+                              }}
+                              disabled={
+                                _email && _date && _category ? false : true
                               }
                             >
                               Request
@@ -174,12 +194,23 @@ const IndDashboard = ({
                             <button
                               type='button'
                               className='btn btn-secondary btn-lg btn-block'
-                              onClick={e =>
-                                selectedEvent &&
+                              onClick={e => {
                                 deleteRequest(
                                   employee.employee.calendarId,
                                   selectedEvent._id
-                                )
+                                );
+                                setFormData({
+                                  _email: '',
+                                  _date: '',
+                                  _category: ''
+                                });
+                              }}
+                              disabled={
+                                !selectedEvent ||
+                                (request.requests.filter(
+                                  r => r.date === selectedEvent.date
+                                ).length < 1 &&
+                                  true)
                               }
                             >
                               Revoke

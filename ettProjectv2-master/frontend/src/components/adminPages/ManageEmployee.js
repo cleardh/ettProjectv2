@@ -294,6 +294,7 @@ const ManageEmployee = ({
                           className='btn btn-outline-secondary btn-add'
                           type='button'
                           name='addMember'
+                          disabled={!employee.employee && true}
                           onClick={e => addMember(e)}
                         >
                           <i className='fas fa-plus'></i>
@@ -304,7 +305,11 @@ const ManageEmployee = ({
                 </table>
               </div>
             </fieldset>
-            <button type='submit' className='btn btn-primary block'>
+            <button
+              type='submit'
+              className='btn btn-primary block'
+              disabled={!employee.employee && true}
+            >
               Save
             </button>
           </form>

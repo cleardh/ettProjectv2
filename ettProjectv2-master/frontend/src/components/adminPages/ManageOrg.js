@@ -44,12 +44,17 @@ const ManageOrg = ({
     getLevelByTitle('Company');
   }, [getLevelByTitle]);
 
-  const [title, setTitle] = useState('');
+  const [org, setOrg] = useState({
+    _title: '',
+    _level: '',
+    _head: ''
+  });
+  const { _title, _level, _head } = org;
 
   const onSubmit = e => {
     e.preventDefault();
     const formData = {
-      title,
+      title: _title,
       level: level.level,
       head: employee.employee
     };
@@ -63,7 +68,13 @@ const ManageOrg = ({
         <div className='wrapper'>
           <AdminSidebar current={'org'} />
           <div className='admin-wrapper'>
-            <form className='admin-form' onSubmit={e => onSubmit(e)}>
+            <form
+              className='admin-form'
+              onSubmit={e => {
+                onSubmit(e);
+                setOrg({ _title: '', _level: '', _head: '' });
+              }}
+            >
               <fieldset>
                 <legend>Manage Organization</legend>
                 <table className='table table-hover'>
@@ -98,11 +109,13 @@ const ManageOrg = ({
                   <input
                     type='text'
                     className='form-control'
-                    name='title'
+                    name='_title'
                     id='title'
                     placeholder='Enter title'
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
+                    value={_title}
+                    onChange={e =>
+                      setOrg({ ...org, [e.target.name]: e.target.value })
+                    }
                   />
                 </div>
                 <div className='form-group'>
@@ -111,7 +124,11 @@ const ManageOrg = ({
                     className='form-control'
                     id='level'
                     name='_level'
-                    onChange={e => getLevelByTitle(e.target.value)}
+                    value={_level}
+                    onChange={e => {
+                      setOrg({ ...org, [e.target.name]: e.target.value });
+                      getLevelByTitle(e.target.value);
+                    }}
                   >
                     {level.levels.length > 0 &&
                       level.levels.map(l => (
@@ -128,6 +145,10 @@ const ManageOrg = ({
                     className='form-control'
                     id='head'
                     name='_head'
+                    value={_head}
+                    onChange={e =>
+                      setOrg({ ...org, [e.target.name]: e.target.value })
+                    }
                     placeholder='Enter email'
                     onBlur={e =>
                       e.target.value !== '' &&
