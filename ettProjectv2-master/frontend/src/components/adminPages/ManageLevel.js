@@ -1,24 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import { getAllLevels, addLevel, deleteLevel } from '../../actions/level';
 import Loading from '../layouts/Loading';
 
-const ManageLevel = ({
-  history,
-  user,
-  level,
-  getAllLevels,
-  addLevel,
-  deleteLevel
-}) => {
-  if (user && !user.role.isAdmin) {
-    history.push('/dashboard/individual');
-  }
-
+const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
   useEffect(() => {
     getAllLevels();
   }, [getAllLevels, level.levels.length]);
@@ -93,7 +81,6 @@ const ManageLevel = ({
 };
 
 ManageLevel.propTypes = {
-  user: PropTypes.object,
   level: PropTypes.object,
   getAllLevels: PropTypes.func.isRequired,
   addLevel: PropTypes.func.isRequired,
@@ -101,7 +88,6 @@ ManageLevel.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  user: state.auth.user,
   level: state.level
 });
 
@@ -109,4 +95,4 @@ export default connect(mapStateToProps, {
   getAllLevels,
   addLevel,
   deleteLevel
-})(withRouter(ManageLevel));
+})(ManageLevel);

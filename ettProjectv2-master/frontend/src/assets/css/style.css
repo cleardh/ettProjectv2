@@ -472,7 +472,7 @@ legend {
 
 .about-wrapper {
   width: 60%;
-  position: absolute;
+  position: relative;
   top: 10%;
   left: 20%;
 }
@@ -509,4 +509,44 @@ legend {
 .category-input {
   width: 4em;
   margin-top: 1em;
+}
+
+.google-calendar-link {
+  font-size: small;
+  color: #8e8c84;
+  cursor: pointer;
+  margin-left: 1em;
+}
+
+.google-calendar-link:hover {
+  color: #244463;
+}
+
+.org-title-link {
+  cursor: pointer;
+}
+
+.org-title-link:hover {
+  color: #29abe0;
+  font-weight: 500;
+}
+
+/* Charts */
+.p-0 {
+  padding: 0;
+}
+
+.donut-cell {
+  position: relative;
+}
+
+.center-label {
+  font-weight: 600;
+  position: absolute;
+  top: 10px;
+  left: 113px;
+  width: 55px;
+  height: 30px;
+  line-height: 280px;
+  text-align: center;
 }

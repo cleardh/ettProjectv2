@@ -1,6 +1,7 @@
 import {
   ADD_ORGANIZATION,
   DELETE_ORGANIZATION,
+  UPDATE_ORGANIZATION,
   GET_ORGANIZATION,
   GET_ORGANIZATIONS,
   GET_MEMBER_ORGANIZATIONS,
@@ -60,6 +61,12 @@ export default function(state = initialState, action) {
         organizations: state.organizations.filter(
           organization => organization.id !== payload.id
         ),
+        loading: false
+      };
+    case UPDATE_ORGANIZATION:
+      return {
+        ...state,
+        organization: payload,
         loading: false
       };
     case GET_ORGANIZATIONS:

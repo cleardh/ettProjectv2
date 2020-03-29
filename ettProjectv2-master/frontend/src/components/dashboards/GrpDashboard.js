@@ -5,18 +5,10 @@ import PropTypes from 'prop-types';
 import { getAllOrganizations } from '../../actions/organization';
 import GrpNavbar from '../layouts/navbars/GrpNavbar';
 
-const GrpDashboard = ({ auth: { token, user }, org, getAllOrganizations }) => {
+const GrpDashboard = ({ auth: { user }, org, getAllOrganizations }) => {
   useEffect(() => {
     getAllOrganizations();
   }, [getAllOrganizations]);
-
-  if (!token || !localStorage.token) {
-    return <Redirect to='/' />;
-  }
-
-  if (!user) {
-    return <Redirect to='/dashboard/group' />;
-  }
 
   const orgs = org.organizations.map(o => o.head._id === user._id);
 

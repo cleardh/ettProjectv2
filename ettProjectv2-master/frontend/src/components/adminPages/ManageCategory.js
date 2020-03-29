@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import Loading from '../layouts/Loading';
@@ -11,18 +10,11 @@ import {
 } from '../../actions/category';
 
 const ManageCategory = ({
-  history,
-  user,
   category,
   addCategory,
   deleteCategory,
   getAllCategories
 }) => {
-  if (user && !user.role.isAdmin) {
-    history.push('/dashboard/individual');
-  }
-  console.log('IN MANAGECATEGORY');
-
   useEffect(() => {
     getAllCategories();
   }, [getAllCategories, category.categories.length]);
@@ -202,7 +194,6 @@ const ManageCategory = ({
 };
 
 const mapStateToProps = state => ({
-  user: state.auth.user,
   category: state.category
 });
 
@@ -210,4 +201,4 @@ export default connect(mapStateToProps, {
   addCategory,
   deleteCategory,
   getAllCategories
-})(withRouter(ManageCategory));
+})(ManageCategory);

@@ -3,14 +3,8 @@ import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-const AdminSidebar = ({
-  current,
-  auth: { token, isAuthenticated, user },
-  history
-}) => {
-  if (!isAuthenticated && !token && !localStorage.token && !user) {
-    history.push('/');
-  } else if (user && !user.role.isAdmin) {
+const AdminSidebar = ({ current, auth: { user }, history }) => {
+  if (user && !user.role.isAdmin) {
     history.push('/dashboard/individual');
   }
 

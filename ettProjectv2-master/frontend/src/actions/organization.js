@@ -2,6 +2,7 @@ import axios from 'axios';
 import {
   ADD_ORGANIZATION,
   DELETE_ORGANIZATION,
+  UPDATE_ORGANIZATION,
   GET_ORGANIZATION,
   GET_ORGANIZATIONS,
   CLEAR_ORGANIZATION,
@@ -20,8 +21,24 @@ export const addOrganization = formData => (dispatch, getState) => {
       tokenConfig(getState)
     )
     .then(res => {
-      console.log(res.data);
-
+      axios
+        .put(
+          `http://localhost:5000/api/organization/${res.data._id}/add-member`,
+          { member: formData.head },
+          tokenConfig(getState)
+        )
+        .then(res =>
+          dispatch({
+            type: ADD_MEMBER,
+            payload: res.data
+          })
+        )
+        .catch(err =>
+          dispatch({
+            type: ORGANIZATION_ERROR,
+            payload: { msg: err.message }
+          })
+        );
       dispatch({
         type: ADD_ORGANIZATION,
         payload: res.data
@@ -55,6 +72,45 @@ export const deleteOrganization = id => (dispatch, getState) => {
         })
       );
   }
+};
+
+export const updateOrganization = (id, formData) => (dispatch, getState) => {
+  axios
+    .put(
+      `http://localhost:5000/api/organization/${id}`,
+      formData,
+      tokenConfig(getState)
+    )
+    .then(res => {
+      axios
+        .put(
+          `http://localhost:5000/api/organization/${res.data._id}/add-member`,
+          { member: formData.head },
+          tokenConfig(getState)
+        )
+        .then(res =>
+          dispatch({
+            type: ADD_MEMBER,
+            payload: res.data
+          })
+        )
+        .catch(err =>
+          dispatch({
+            type: ORGANIZATION_ERROR,
+            payload: { msg: err.message }
+          })
+        );
+      dispatch({
+        type: UPDATE_ORGANIZATION,
+        payload: res.data
+      });
+    })
+    .catch(err =>
+      dispatch({
+        type: ORGANIZATION_ERROR,
+        payload: { msg: err.message }
+      })
+    );
 };
 
 export const addMemberToOrganization = (orgId, member) => (

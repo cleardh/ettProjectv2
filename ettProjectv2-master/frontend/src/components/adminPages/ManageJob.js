@@ -1,17 +1,12 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import Loading from '../layouts/Loading';
 import { getAllJobs, addJob, deleteJob } from '../../actions/job';
 
-const ManageJob = ({ history, user, job, addJob, deleteJob, getAllJobs }) => {
-  if (user && !user.role.isAdmin) {
-    history.push('/dashboard/individual');
-  }
-
+const ManageJob = ({ job, addJob, deleteJob, getAllJobs }) => {
   useEffect(() => {
     getAllJobs();
   }, [getAllJobs, job.jobs.length]);
@@ -94,7 +89,6 @@ const ManageJob = ({ history, user, job, addJob, deleteJob, getAllJobs }) => {
 };
 
 ManageJob.propTypes = {
-  user: PropTypes.object,
   job: PropTypes.object,
   addJob: PropTypes.func.isRequired,
   deleteJob: PropTypes.func.isRequired,
@@ -102,10 +96,9 @@ ManageJob.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  user: state.auth.user,
   job: state.job
 });
 
 export default connect(mapStateToProps, { addJob, getAllJobs, deleteJob })(
-  withRouter(ManageJob)
+  ManageJob
 );

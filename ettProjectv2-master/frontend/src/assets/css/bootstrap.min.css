@@ -172,7 +172,7 @@ a:not([href]) {
   text-decoration: none;
 }
 a:not([href]):hover {
-  color: inherit;
+  /* color: inherit; */
   text-decoration: none;
 }
 pre,
@@ -4753,7 +4753,7 @@ input[type='button'].btn-block {
   color: #000;
 }
 .navbar-dark .navbar-brand {
-  color: #fff;
+  color: #e0e0e0;
 }
 .navbar-dark .navbar-brand:hover,
 .navbar-dark .navbar-brand:focus {

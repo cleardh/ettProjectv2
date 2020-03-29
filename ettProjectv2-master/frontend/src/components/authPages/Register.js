@@ -135,8 +135,19 @@ const Register = ({
                     />
                   </div>
 
-                  <div className='form-group'>
-                    <label>Calendar ID</label>
+                  <span className='form-group'>
+                    <label>
+                      Calendar ID{' '}
+                      <span
+                        className='google-calendar-link'
+                        onClick={() =>
+                          window.open('https://calendar.google.com')
+                        }
+                      >
+                        Go to google calendar&nbsp;
+                        <i className='far fa-calendar'></i>
+                      </span>{' '}
+                    </label>
                     <input
                       type='text'
                       className='form-control'
@@ -145,7 +156,7 @@ const Register = ({
                       value={_calendarId}
                       onChange={e => onChange(e)}
                     />
-                  </div>
+                  </span>
                 </fieldset>
                 <button type='submit' className='btn btn-primary block'>
                   Submit
@@ -161,7 +172,7 @@ const Register = ({
             </div>
           </div>
           <div className='overlay'></div>
-          <footer className='landing-footer'>&copy; 2020 Team DJK</footer>;
+          <footer className='landing-footer'>&copy; 2020 Team DJK</footer>
         </Fragment>
       ) : (
         <Fragment>

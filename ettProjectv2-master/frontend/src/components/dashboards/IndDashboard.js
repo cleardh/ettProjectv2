@@ -1,11 +1,11 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Loading from '../layouts/Loading';
 import IndNavbar from '../layouts/navbars/IndNavbar';
 import Calendar from './Calendar';
+import Chart from './Chart';
 import { getAllCategories, getCategoryByTitle } from '../../actions/category';
 import {
   addRequest,
@@ -16,7 +16,7 @@ import { getEmployeeByEmail } from '../../actions/employee';
 
 const IndDashboard = ({
   email,
-  auth: { token, user },
+  auth: { user },
   category,
   employee,
   request,
@@ -56,9 +56,18 @@ const IndDashboard = ({
     }
   }, [getCategoryByTitle, _category]);
 
-  if (!token || !localStorage.token || !user) {
-    return <Redirect to='/' />;
-  } else if (!employee.employee) {
+  const getConfirmedRequestsByCategory = categoryId => {
+    if (category.categories.length > 0 && request.requests.length > 0) {
+      const c = category.categories.find(c => c._id === categoryId);
+      const requestDays = request.requests.filter(
+        r => r.category._id === c._id && r.isConfirmed
+      );
+      return requestDays.length;
+    }
+    return 0;
+  };
+
+  if (!employee.employee) {
     return <Loading />;
   } else {
     return (
@@ -95,20 +104,28 @@ const IndDashboard = ({
               </div>
             </div>
           </div>
-          <div className='grid-item'>
-            <div className='grid-container'>
-              <div className='grid-item'>
-                <div id='chart1'></div>
-              </div>
-              <div className='grid-item'>
-                <div id='chart2'></div>
-              </div>
-              <div className='grid-item'>
-                <div id='chart3'></div>
-              </div>
-              <div className='grid-item'>
-                <div id='chart4'></div>
-              </div>
+          <div className='grid-item p-0'>
+            <div className='grid-container p-0'>
+              {/* Start Each Chart */}
+              {category.categories.length > 0 &&
+                category.categories.map((c, i) => (
+                  <div className='grid-item donut-cell' key={i}>
+                    <div id={`chart${i + 1}`}>
+                      <Chart
+                        category={c}
+                        requestDays={getConfirmedRequestsByCategory(c._id)}
+                      />
+                      <div className='center-label'>
+                        {c.isUnlimited
+                          ? 'Unltd'
+                          : `${getConfirmedRequestsByCategory(c._id)} / ${
+                              c.limit
+                            }`}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              {/* End Each Chart */}
             </div>
           </div>
           <div className='grid-item'>
@@ -172,7 +189,7 @@ const IndDashboard = ({
                                   addRequest(
                                     {
                                       email: _email,
-                                      date: _date,
+                                      date: moment(_date).format('YYYY-MM-DD'),
                                       category: category.category
                                     },
                                     employee.employee.calendarId

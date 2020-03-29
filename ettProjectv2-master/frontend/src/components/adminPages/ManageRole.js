@@ -1,24 +1,12 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import Loading from '../layouts/Loading';
 import { addRole, deleteRole, getAllRoles } from '../../actions/role';
 
-const ManageRole = ({
-  history,
-  user,
-  role,
-  addRole,
-  deleteRole,
-  getAllRoles
-}) => {
-  if (user && !user.role.isAdmin) {
-    history.push('/dashboard/individual');
-  }
-
+const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
   useEffect(() => {
     getAllRoles();
   }, [getAllRoles, role.roles.length]);
@@ -132,7 +120,6 @@ const ManageRole = ({
 };
 
 ManageRole.propTypes = {
-  user: PropTypes.object,
   role: PropTypes.object,
   addRole: PropTypes.func.isRequired,
   deleteRole: PropTypes.func.isRequired,
@@ -140,10 +127,9 @@ ManageRole.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  user: state.auth.user,
   role: state.role
 });
 
 export default connect(mapStateToProps, { addRole, getAllRoles, deleteRole })(
-  withRouter(ManageRole)
+  ManageRole
 );

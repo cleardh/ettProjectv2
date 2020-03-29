@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
@@ -17,8 +16,6 @@ import {
 } from '../../actions/organization';
 
 const ManageEmployee = ({
-  history,
-  user,
   role,
   job,
   employee,
@@ -35,10 +32,6 @@ const ManageEmployee = ({
   addMemberToOrganization,
   deleteMemberFromOrganization
 }) => {
-  if (user && !user.role.isAdmin) {
-    history.push('/dashboard/individual');
-  }
-
   useEffect(() => {
     getAllRoles();
   }, [getAllRoles]);
@@ -339,7 +332,6 @@ ManageEmployee.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  user: state.auth.user,
   role: state.role,
   job: state.job,
   employee: state.employee,
@@ -358,4 +350,4 @@ export default connect(mapStateToProps, {
   getOrganizationByTitle,
   addMemberToOrganization,
   deleteMemberFromOrganization
-})(withRouter(ManageEmployee));
+})(ManageEmployee);

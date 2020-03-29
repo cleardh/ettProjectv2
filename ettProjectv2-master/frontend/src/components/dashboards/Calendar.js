@@ -255,36 +255,47 @@ export default class Calendar extends React.Component {
           moment(e.date).format('Y') === this.year() &&
           moment(e.date).format('MMMM') === this.month()
       );
-      const style = eventList.map(e =>
-        moment(e.date).date() + 1 === d && e.isConfirmed
-          ? {
-              background: `${e.category.color}`
-            }
-          : moment(e.date).date() + 1 === d &&
-            !e.isConfirmed && {
-              background: `${e.category.color}`
-            }
+      const style = eventList.map(
+        e =>
+          moment(e.date).date() + 1 === d &&
+          (e.isConfirmed
+            ? {
+                background: `${e.category.color}`
+              }
+            : {
+                color: `${e.category.color}`,
+                textDecoration: 'underline',
+                fontWeight: '600'
+              })
       );
 
-      let background = {
+      let styles = {
         background: '',
         borderRadius: 40,
         WebkitBorderRadius: 40
       };
       style.map(s => {
         if (s.background) {
-          background = {
-            ...background,
+          styles = {
+            ...styles,
             background: s.background
           };
         }
-        return background;
+        if (s.color && s.textDecoration && s.fontWeight) {
+          styles = {
+            ...styles,
+            color: s.color,
+            textDecoration: s.textDecoration,
+            fontWeight: s.fontWeight
+          };
+        }
+        return styles;
       });
       daysInMonth.push(
         <td
           key={d}
           className={`calendar-day ${currentDay}`}
-          style={background}
+          style={styles}
           onClick={e => {
             this.onDayClick(e, d);
           }}

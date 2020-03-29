@@ -1,17 +1,8 @@
 import React, { Fragment } from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 
-const AdminMain = ({ auth: { user }, history }) => {
-  console.log('user: ', user);
-
-  if (user && !user.role.isAdmin) {
-    history.push('/dashboard/individual');
-  }
-  console.log('IN ADMIN MAIN');
+const AdminMain = () => {
   return (
     <Fragment>
       <AdmNavbar />
@@ -37,12 +28,4 @@ const AdminMain = ({ auth: { user }, history }) => {
   );
 };
 
-AdminMain.propTypes = {
-  auth: PropTypes.object
-};
-
-const mapStateToProps = state => ({
-  auth: state.auth
-});
-
-export default connect(mapStateToProps)(withRouter(AdminMain));
+export default AdminMain;

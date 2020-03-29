@@ -1,40 +1,35 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import {
   getAllOrganizations,
-  getOrganizationsByHead,
+  getOrganizationByTitle,
   addOrganization,
-  deleteOrganization
+  deleteOrganization,
+  updateOrganization
 } from '../../actions/organization';
 import { getAllLevels, getLevelByTitle } from '../../actions/level';
 import { getEmployeeByEmail } from '../../actions/employee';
 import Loading from '../layouts/Loading';
 
 const ManageOrg = ({
-  history,
-  user,
   level,
   employee,
   organization,
   getAllOrganizations,
-  getOrganizationsByHead,
+  getOrganizationByTitle,
   addOrganization,
   deleteOrganization,
+  updateOrganization,
   getAllLevels,
   getLevelByTitle,
   getEmployeeByEmail
 }) => {
-  if (user && !user.role.isAdmin) {
-    history.push('/dashboard/individual');
-  }
-
   useEffect(() => {
     getAllOrganizations();
-  }, [getAllOrganizations, organization.organizations.length]);
+  }, [getAllOrganizations, organization.organizations]);
 
   useEffect(() => {
     getAllLevels();
@@ -58,7 +53,44 @@ const ManageOrg = ({
       level: level.level,
       head: employee.employee
     };
-    addOrganization(formData);
+    btnText === 'Save'
+      ? addOrganization(formData)
+      : updateOrganization(organization.organization._id, formData);
+
+    setOrg({ _title: '', _level: '', _head: '' });
+    setBtnText('Save');
+  };
+
+  const [btnText, setBtnText] = useState('Save');
+
+  useEffect(() => {
+    if (btnText === 'Update') {
+      setOrg({
+        _title: organization.organization
+          ? organization.organization.title
+          : '',
+        _level: organization.organization
+          ? organization.organization.level.title
+          : '',
+        _head: organization.organization
+          ? organization.organization.head.email
+          : ''
+      });
+    }
+  }, [btnText, organization.organization]);
+
+  const loadOrg = (e, title) => {
+    getOrganizationByTitle(title);
+    setBtnText('Update');
+  };
+
+  const cancel = e => {
+    setBtnText('Save');
+    setOrg({
+      _title: '',
+      _level: '',
+      _head: ''
+    });
   };
 
   return (
@@ -72,7 +104,6 @@ const ManageOrg = ({
               className='admin-form'
               onSubmit={e => {
                 onSubmit(e);
-                setOrg({ _title: '', _level: '', _head: '' });
               }}
             >
               <fieldset>
@@ -82,7 +113,10 @@ const ManageOrg = ({
                     {organization.organizations.map(o => (
                       <Fragment key={o._id}>
                         <tr>
-                          <td>
+                          <td
+                            className='org-title-link'
+                            onClick={e => loadOrg(e, o.title)}
+                          >
                             <em>{o.title}</em>
                           </td>
                           <td>
@@ -158,7 +192,14 @@ const ManageOrg = ({
                 </div>
               </fieldset>
               <button type='submit' className='btn btn-primary block'>
-                Save
+                {btnText}
+              </button>
+              <button
+                type='button'
+                className='btn btn-danger block'
+                onClick={e => cancel(e)}
+              >
+                Cancel
               </button>
             </form>
           </div>
@@ -171,21 +212,20 @@ const ManageOrg = ({
 };
 
 ManageOrg.propTypes = {
-  user: PropTypes.object,
   level: PropTypes.object,
   organization: PropTypes.object,
   employee: PropTypes.object,
   getAllOrganizations: PropTypes.func.isRequired,
+  getOrganizationByTitle: PropTypes.func.isRequired,
   addOrganization: PropTypes.func.isRequired,
   deleteOrganization: PropTypes.func.isRequired,
-  getOrganizationsByHead: PropTypes.func.isRequired,
+  updateOrganization: PropTypes.func.isRequired,
   getAllLevels: PropTypes.func.isRequired,
   getLevelByTitle: PropTypes.func.isRequired,
   getEmployeeByEmail: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
-  user: state.auth.user,
   level: state.level,
   organization: state.organization,
   employee: state.employee
@@ -193,10 +233,11 @@ const mapStateToProps = state => ({
 
 export default connect(mapStateToProps, {
   getAllOrganizations,
+  getOrganizationByTitle,
   addOrganization,
   deleteOrganization,
-  getOrganizationsByHead,
+  updateOrganization,
   getAllLevels,
   getLevelByTitle,
   getEmployeeByEmail
-})(withRouter(ManageOrg));
+})(ManageOrg);
