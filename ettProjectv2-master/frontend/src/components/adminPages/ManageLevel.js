@@ -7,6 +7,7 @@ import { getAllLevels, addLevel, deleteLevel } from '../../actions/level';
 import Loading from '../layouts/Loading';
 
 const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
+  localStorage.setItem('component', 'ManageLevel');
   useEffect(() => {
     getAllLevels();
   }, [getAllLevels, level.levels.length]);

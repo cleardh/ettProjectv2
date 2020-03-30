@@ -27,6 +27,7 @@ const IndDashboard = ({
   getRequestsByEmployee,
   getEmployeeByEmail
 }) => {
+  localStorage.removeItem('component');
   const [formData, setFormData] = useState({
     _email: email ? email : '',
     _date: '',
@@ -106,7 +107,7 @@ const IndDashboard = ({
           </div>
           <div className='grid-item p-0'>
             <div className='grid-container p-0'>
-              {/* Start Each Chart */}
+              {/* Start Chart */}
               {category.categories.length > 0 &&
                 category.categories.map((c, i) => (
                   <div className='grid-item donut-cell' key={i}>
@@ -125,7 +126,7 @@ const IndDashboard = ({
                     </div>
                   </div>
                 ))}
-              {/* End Each Chart */}
+              {/* End Chart */}
             </div>
           </div>
           <div className='grid-item'>

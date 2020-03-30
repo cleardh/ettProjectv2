@@ -27,6 +27,7 @@ const ManageOrg = ({
   getLevelByTitle,
   getEmployeeByEmail
 }) => {
+  localStorage.setItem('component', 'ManageOrg');
   useEffect(() => {
     getAllOrganizations();
   }, [getAllOrganizations, organization.organizations]);

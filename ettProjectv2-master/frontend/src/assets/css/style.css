@@ -1,5 +1,5 @@
 html {
-  background: #325d88;
+  background: #244463;
 }
 
 body {
@@ -442,6 +442,7 @@ legend {
 }
 
 .admin-form {
+  min-width: 460px;
   margin-top: 10%;
   padding: 5%;
   border-radius: 10px;
@@ -549,4 +550,16 @@ legend {
   height: 30px;
   line-height: 280px;
   text-align: center;
+}
+
+.org-selection {
+  height: 77vh;
+}
+
+.lh-40 {
+  line-height: 40px;
+}
+
+.sm-btn {
+  cursor: pointer;
 }

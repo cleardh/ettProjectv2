@@ -14,7 +14,30 @@ const Auth = ({ auth, authenticate }) => {
     if (auth.user.calendarId === '') {
       return <Redirect to='/register' />;
     } else {
-      return <Redirect to='/dashboard/individual' />;
+      switch (localStorage.getItem('component')) {
+        case 'About':
+          return <Redirect to='/about' />;
+        case 'GrpDashboard':
+          return <Redirect to='/dashboard/group' />;
+        case 'AdminMain':
+          return <Redirect to='/admin/main' />;
+        case 'ManageCategory':
+          return <Redirect to='/admin/manage-category' />;
+        case 'ManageEmployee':
+          return <Redirect to='/admin/manage-employee' />;
+        case 'ManageJob':
+          return <Redirect to='/admin/manage-job' />;
+        case 'ManageLevel':
+          return <Redirect to='/admin/manage-level' />;
+        case 'ManageOrg':
+          return <Redirect to='/admin/manage-organization' />;
+        case 'ManageRole':
+          return <Redirect to='/admin/manage-role' />;
+        case 'Report':
+          return <Redirect to='/admin/report' />;
+        default:
+          return <Redirect to='/dashboard/individual' />;
+      }
     }
   } else {
     return <Loading />;

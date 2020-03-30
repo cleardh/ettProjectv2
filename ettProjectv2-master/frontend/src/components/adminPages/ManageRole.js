@@ -7,6 +7,7 @@ import Loading from '../layouts/Loading';
 import { addRole, deleteRole, getAllRoles } from '../../actions/role';
 
 const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
+  localStorage.setItem('component', 'ManageRole');
   useEffect(() => {
     getAllRoles();
   }, [getAllRoles, role.roles.length]);

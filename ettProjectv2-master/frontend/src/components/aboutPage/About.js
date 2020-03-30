@@ -8,6 +8,7 @@ import member3 from '../../assets/img/avatar03.png';
 import advisor from '../../assets/img/avatar04.png';
 
 const About = ({ auth: { user } }) => {
+  localStorage.setItem('component', 'About');
   return (
     <Fragment>
       <IndNavbar user={user} />

@@ -15,6 +15,7 @@ const ManageCategory = ({
   deleteCategory,
   getAllCategories
 }) => {
+  localStorage.setItem('component', 'ManageCategory');
   useEffect(() => {
     getAllCategories();
   }, [getAllCategories, category.categories.length]);

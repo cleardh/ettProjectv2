@@ -8,7 +8,7 @@ import { logout } from '../../../actions/auth';
 const AdmNavbar = ({ logout }) => {
   return (
     <nav className='navbar navbar-expand-lg navbar-dark bg-primary'>
-      <Link to='/' className='brand-link'>
+      <Link to='/dashboard/individual' className='brand-link'>
         <img
           src={logo}
           alt='Team Logo'
@@ -31,7 +31,7 @@ const AdmNavbar = ({ logout }) => {
       <div className='collapse navbar-collapse' id='navbarColor01'>
         <ul className='navbar-nav mr-auto'>
           <li className='nav-item'>
-            <Link to='/' className='nav-link'>
+            <Link to='/dashboard/individual' className='nav-link'>
               {' '}
               <i className='fas fa-home'></i> Home{' '}
             </Link>

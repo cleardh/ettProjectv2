@@ -1,11 +1,17 @@
 import React, { Fragment } from 'react';
 import DonutChart from 'react-google-charts';
 
-const Chart = ({ category, requestDays }) => {
+const Chart = ({ category, requestDays, org }) => {
   const data = category.isUnlimited
     ? [
         ['Label', 'Days'],
         ['Remaining', 365]
+      ]
+    : org
+    ? [
+        ['Label', 'Days'],
+        ['Used', requestDays],
+        ['Remaining', category.limit * org.members.length - requestDays]
       ]
     : [
         ['Label', 'Days'],

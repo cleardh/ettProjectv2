@@ -6,6 +6,7 @@ import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import { generateReport } from '../../actions/request';
 
 const Report = ({ generateReport }) => {
+  localStorage.setItem('component', 'Report');
   const [dateRange, setDateRange] = useState({
     start: '',
     end: ''

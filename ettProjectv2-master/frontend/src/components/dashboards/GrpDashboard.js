@@ -1,162 +1,232 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withRouter, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getAllOrganizations } from '../../actions/organization';
+import moment from 'moment';
+import {
+  getAllOrganizations,
+  getOrganizationByTitle
+} from '../../actions/organization';
+import { getAllCategories } from '../../actions/category';
+import {
+  getAllRequests,
+  confirmRequest,
+  deleteRequest
+} from '../../actions/request';
+import Loading from '../layouts/Loading';
 import GrpNavbar from '../layouts/navbars/GrpNavbar';
+import OrgSelection from './OrgSelection';
+import Chart from './Chart';
 
-const GrpDashboard = ({ auth: { user }, org, getAllOrganizations }) => {
+const GrpDashboard = ({
+  auth: { user },
+  org,
+  category,
+  request,
+  getAllOrganizations,
+  getOrganizationByTitle,
+  getAllCategories,
+  getAllRequests,
+  confirmRequest,
+  deleteRequest
+}) => {
+  localStorage.setItem('component', 'GrpDashboard');
   useEffect(() => {
     getAllOrganizations();
   }, [getAllOrganizations]);
 
-  const orgs = org.organizations.map(o => o.head._id === user._id);
+  useEffect(() => {
+    getAllCategories();
+  }, [getAllCategories]);
 
-  let dashboard = null;
-  // if current user is not a head of a group
-  if (org.organizations.length < 1) {
-    dashboard = <div>You are not the head of an organization yet.</div>;
-  } else if (org.organizations.length > 1) {
-    dashboard = <div>Choose an organization from the list.</div>;
-  } else {
-    dashboard = (
-      <div className='grid-container'>
-        <div className='grid-item info-grid'>
-          <div className='media'>
-            <div className='media-body'>
-              <h4 className='mb-2'>{org.organizations[0].title}</h4>
-              <table className='tbl'>
-                <tr>
-                  <td>
-                    {org.organizations[0].head.firstName +
-                      ' ' +
-                      org.organizations[0].head.lastName}
-                  </td>
-                </tr>
-                <tr>
-                  <td>{org.organizations[0].head.email}</td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div className='grid-item'>
-          <div className='grid-container'>
-            {/* charts */}
-            <div className='grid-item'>
-              <div id='chart1'></div>
-            </div>
-            <div className='grid-item'>
-              <div id='chart2'></div>
-            </div>
-            <div className='grid-item'>
-              <div id='chart3'></div>
-            </div>
-            <div className='grid-item'>
-              <div id='chart4'></div>
-            </div>
-          </div>
-        </div>
-        <div className='grid-item'>
-          <ul className='list-group'>
-            <li className='list-group-item active'>PENDING REQUESTS</li>
-            <li className='list-group-item pendinglist'>
-              <table className='list-table'>
-                <tr>
-                  <td>employee1@gmail.com</td>
-                  <td>
-                    <span className='badge badge-pill badge-info'>
-                      Vacation
-                    </span>
-                  </td>
-                  <td align='center'>2020.02.27</td>
-                  <td align='right'>
-                    <i className='fas fa-check-circle accept'></i>
-                    <i className='fas fa-times-circle decline'></i>
-                  </td>
-                </tr>
-              </table>
-            </li>
-            <li className='list-group-item pendinglist'>
-              <table className='list-table'>
-                <tr>
-                  <td>employee2@gmail.com</td>
-                  <td>
-                    <span className='badge badge-pill badge-danger cell'>
-                      Work from Home
-                    </span>
-                  </td>
-                  <td align='center'>2020.02.28</td>
-                  <td align='right'>
-                    <i className='fas fa-check-circle accept'></i>
-                    <i className='fas fa-times-circle decline'></i>
-                  </td>
-                </tr>
-              </table>
-            </li>
-            <li className='list-group-item pendinglist'>
-              <table className='list-table'>
-                <tr>
-                  <td>employee3@gmail.com</td>
-                  <td>
-                    <span className='badge badge-pill badge-warning cell'>
-                      Birthday
-                    </span>
-                  </td>
-                  <td align='center'>2020.03.03</td>
-                  <td align='right'>
-                    <i className='fas fa-check-circle accept'></i>
-                    <i className='fas fa-times-circle decline'></i>
-                  </td>
-                </tr>
-              </table>
-            </li>
-            <li className='list-group-item pendinglist'>
-              <table className='list-table'>
-                <tr>
-                  <td>employee4@gmail.com</td>
-                  <td>
-                    <span className='badge badge-pill badge-success cell'>
-                      Personal
-                    </span>
-                  </td>
-                  <td align='center'>2020.03.04</td>
-                  <td align='right'>
-                    <i className='fas fa-check-circle accept'></i>
-                    <i className='fas fa-times-circle decline'></i>
-                  </td>
-                </tr>
-              </table>
-            </li>
-          </ul>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    getAllRequests();
+  }, [getAllRequests]);
+
+  const [title, setTitle] = useState('');
+
+  const [parentStyle, setParentStyle] = useState({
+    display: ''
+  });
+  const [childStyle, setChildStyle] = useState({
+    display: ''
+  });
+
+  const showOrgSelect = e => {
+    setParentStyle({ display: 'none' });
+    setChildStyle({ display: '' });
+  };
+
+  useEffect(() => {
+    title && getOrganizationByTitle(title);
+  }, [getOrganizationByTitle, title]);
 
   if (user.role.title === 'Employee') {
     return <Redirect to='/dashboard/individual' />;
-  } else {
-    return (
-      <Fragment>
-        <GrpNavbar user={user} />
-        {dashboard}
-      </Fragment>
-    );
   }
+
+  const orgs = org.organizations.filter(o => o.head._id === user._id);
+
+  const getRequestsByOrg = o => {
+    let totalRequestDays = 0;
+    if (request.requests.length > 0) {
+      o.members.map(m =>
+        request.requests.map(
+          r => r.user === m && r.isConfirmed && totalRequestDays++
+        )
+      );
+    }
+    return totalRequestDays;
+  };
+
+  return (
+    <Fragment>
+      <GrpNavbar user={user} />
+      <div className='container org-selection' style={childStyle}>
+        <OrgSelection
+          orgs={orgs}
+          title={t => setTitle(t)}
+          parentStyle={s => setParentStyle(s)}
+          childStyle={s => setChildStyle(s)}
+        />
+      </div>
+      {org.organization ? (
+        <Fragment>
+          <div className='grid-container' style={parentStyle}>
+            <div className='grid-item info-grid'>
+              <div className='media'>
+                <div className='media-body'>
+                  <h4 className='mb-2 name-on-dashboard'>
+                    {org.organization.title}
+                  </h4>
+                  <table className='tbl'>
+                    <tbody>
+                      <tr>
+                        <td>
+                          {org.organization.head.firstName +
+                            ' ' +
+                            org.organization.head.lastName}
+                        </td>
+                        <td rowSpan='2'>
+                          <button
+                            type='button'
+                            className='btn btn-primary'
+                            onClick={e => showOrgSelect(e)}
+                          >
+                            Select Organization
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>{org.organization.head.email}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div className='grid-item'>
+              <div className='grid-container p-0'>
+                {/* charts */}
+                {category.categories.map((c, i) => (
+                  <div key={c._id} className='grid-item'>
+                    <div id={`chart${i + 1}`}>
+                      <Chart
+                        category={c}
+                        requestDays={getRequestsByOrg(org.organization)}
+                        org={org.organization}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className='grid-item'>
+              <ul className='list-group'>
+                <li className='list-group-item active'>PENDING REQUESTS</li>
+                <li className='list-group-item pendinglist'>
+                  <table className='list-table'>
+                    <tbody>
+                      {org.organization.members.map(m =>
+                        request.requests.map(
+                          r =>
+                            r.user._id === m._id &&
+                            !r.isConfirmed && (
+                              <tr className='lh-40'>
+                                <td>{m.email}</td>
+                                <td>
+                                  <span
+                                    className='badge badge-pill'
+                                    style={{
+                                      background: `${r.category.color}`,
+                                      color: '#fff'
+                                    }}
+                                  >
+                                    {r.category.title}
+                                  </span>
+                                </td>
+                                <td align='center'>
+                                  {moment(r.date).format('YYYY.MM.DD')}
+                                </td>
+                                <td align='right'>
+                                  <span
+                                    className='sm-btn'
+                                    onClick={e => confirmRequest(r._id)}
+                                  >
+                                    <i className='fas fa-check-circle accept'></i>
+                                  </span>
+                                  <span
+                                    className='sm-btn'
+                                    onClick={e =>
+                                      deleteRequest(m.calendarId, r._id)
+                                    }
+                                  >
+                                    <i className='fas fa-times-circle decline'></i>
+                                  </span>
+                                </td>
+                              </tr>
+                            )
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </Fragment>
+      ) : (
+        <Loading />
+      )}
+    </Fragment>
+  );
 };
 
 GrpDashboard.propTypes = {
   auth: PropTypes.object,
   org: PropTypes.object,
-  getAllOrganizations: PropTypes.func.isRequired
+  category: PropTypes.object,
+  request: PropTypes.object,
+  getAllOrganizations: PropTypes.func.isRequired,
+  getOrganizationByTitle: PropTypes.func.isRequired,
+  getAllCategories: PropTypes.func.isRequired,
+  getAllRequests: PropTypes.func.isRequired,
+  confirmRequest: PropTypes.func.isRequired,
+  deleteRequest: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  org: state.organization
+  org: state.organization,
+  category: state.category,
+  request: state.request
 });
 
-export default connect(mapStateToProps, { getAllOrganizations })(
-  withRouter(GrpDashboard)
-);
+export default connect(mapStateToProps, {
+  getAllOrganizations,
+  getOrganizationByTitle,
+  getAllCategories,
+  getAllRequests,
+  confirmRequest,
+  deleteRequest
+})(GrpDashboard);

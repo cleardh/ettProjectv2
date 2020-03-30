@@ -3,6 +3,7 @@ import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 
 const AdminMain = () => {
+  localStorage.setItem('component', 'AdminMain');
   return (
     <Fragment>
       <AdmNavbar />

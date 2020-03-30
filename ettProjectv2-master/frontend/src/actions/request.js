@@ -87,6 +87,23 @@ export const generateReport = dateRange => (dispatch, getState) => {
     );
 };
 
+export const getAllRequests = () => (dispatch, getState) => {
+  axios
+    .get(`http://localhost:5000/api/request`, tokenConfig(getState))
+    .then(res =>
+      dispatch({
+        type: GET_REQUESTS,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: REQUEST_ERROR,
+        payload: { msg: err.message }
+      })
+    );
+};
+
 export const getRequestsByEmployee = employeeId => (dispatch, getState) => {
   axios
     .get(

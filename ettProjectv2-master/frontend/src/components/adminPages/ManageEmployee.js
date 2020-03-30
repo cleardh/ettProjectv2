@@ -32,6 +32,7 @@ const ManageEmployee = ({
   addMemberToOrganization,
   deleteMemberFromOrganization
 }) => {
+  localStorage.setItem('component', 'ManageEmployee');
   useEffect(() => {
     getAllRoles();
   }, [getAllRoles]);

@@ -7,6 +7,7 @@ import Loading from '../layouts/Loading';
 import { getAllJobs, addJob, deleteJob } from '../../actions/job';
 
 const ManageJob = ({ job, addJob, deleteJob, getAllJobs }) => {
+  localStorage.setItem('component', 'ManageJob');
   useEffect(() => {
     getAllJobs();
   }, [getAllJobs, job.jobs.length]);
