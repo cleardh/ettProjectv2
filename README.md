@@ -1,5 +1,5 @@
-Install Python
-Install django
-switch into project directory
-run command: python manage.py runserver
-run browser: localhost:8000/home
+pipenv shell
+pip install django
+pip install djangorestframework
+pip install django-allauth
+pip install Pillow
