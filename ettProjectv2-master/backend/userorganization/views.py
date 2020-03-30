@@ -1,29 +1,26 @@
-from django.shortcuts import render
-from django import forms
-from .forms import OrgForm
-from .models import UserOrg
-from backend.decorators import unauthenticated_user, allowed_users
-
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import UsrOrgSerializer
+from .serializers import UsrOrgSerializer, GetUsrOrgSerializer
 from .models import UserOrg
+from organization.models import Organization
+from profile.models import Profile
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 
-@unauthenticated_user
-@allowed_users(allowed_roles=['admin'])
-def org_create_view(request):
-    form = OrgForm(request.POST or None)
-    if form.is_valid():
-        form.save()
+@api_view(['GET'])
+def getOrgs(request):
+    usrorg = UserOrg.objects.all()
+    serializer = GetUsrOrgSerializer(usrorg, many=True)
+    return Response(serializer.data)
 
-    context = {
-        'form': form
-        }
+@api_view(['POST'])
+def addUOrgs(request):
+    serializer = UsrOrgSerializer(data=request.data)    
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)    
 
-    return render(request, "orgs.html", context)
-
-class UsrOrgView(APIView):
-    def get(self, request):
-        uo = UserOrg.objects.all()
-        serializer = UsrOrgSerializer(uo, many=True)
-        return Response(serializer.data)
+@api_view(['DELETE'])
+def deleteUOrg(request, pk):
+    UserOrg.objects.filter(pk=pk).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

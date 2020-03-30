@@ -1,29 +1,37 @@
-from django.shortcuts import render
-from django import forms
-from .forms import RolesForm
-from .models import Roles
-from backend.decorators import unauthenticated_user, allowed_users
-
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import RoleSerializer
 from .models import Roles
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 
-#@unauthenticated_user
-#@allowed_users(allowed_roles=['admin'])
-def roles_create_view(request):
-    form = RolesForm(request.POST or None)
-    if form.is_valid():
-        form.save()
+@api_view(['GET'])
+def getAllRoles(request):
+    rol = Roles.objects.all()
+    serializer = RoleSerializer(rol, many=True)
+    return Response(serializer.data)
 
-    context = {
-        'form': form
-        }
-
-    return render(request, "roles.html", context)
-
-class RolesView(APIView):
-    def get(self, request):
-        rol = Roles.objects.all()
-        serializer = RoleSerializer(rol, many=True)
+@api_view(['POST'])   
+def createRole(request):
+    serializer = RoleSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
         return Response(serializer.data)
+
+@api_view(['GET'])
+def getRoleByID(request, pk):
+    rol = get_object_or_404(Roles, pk=pk)
+    serializer = RoleSerializer(rol)
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+def deleteRoleByID(request, pk):
+    Roles.objects.filter(pk=pk).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def getRoleByTitle(request, title):        
+    role = get_object_or_404(Roles, title=title)
+    serializer = RoleSerializer(role)
+    return Response(serializer.data)

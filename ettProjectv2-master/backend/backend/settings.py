@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'backend',
-    'register',
+    'profile',
     'roles',
     'jobs',
     'userorganization',
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'organization',
     'request',
     'rest_framework',
+    'level',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +69,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates', os.path.join(BASE_DIR, 'frontendsample/build')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
