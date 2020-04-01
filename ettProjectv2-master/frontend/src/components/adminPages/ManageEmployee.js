@@ -213,7 +213,7 @@ const ManageEmployee = ({
                   className='form-control'
                   name='_dateHired'
                   id='dateHired'
-                  value={moment(new Date(_dateHired)).format('YYYY-MM-DD')}
+                  value={moment(_dateHired).format('YYYY-MM-DD')}
                   onChange={e =>
                     setEmp({
                       ...emp,

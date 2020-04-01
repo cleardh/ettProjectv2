@@ -9,7 +9,7 @@ import {
 } from '../../actions/organization';
 import { getAllCategories } from '../../actions/category';
 import {
-  getAllRequests,
+  getRequestsByOrg,
   confirmRequest,
   deleteRequest
 } from '../../actions/request';
@@ -26,11 +26,12 @@ const GrpDashboard = ({
   getAllOrganizations,
   getOrganizationByTitle,
   getAllCategories,
-  getAllRequests,
+  getRequestsByOrg,
   confirmRequest,
   deleteRequest
 }) => {
   localStorage.setItem('component', 'GrpDashboard');
+
   useEffect(() => {
     getAllOrganizations();
   }, [getAllOrganizations]);
@@ -40,8 +41,8 @@ const GrpDashboard = ({
   }, [getAllCategories]);
 
   useEffect(() => {
-    getAllRequests();
-  }, [getAllRequests]);
+    org.organization && getRequestsByOrg(org.organization._id);
+  }, [getRequestsByOrg, org.organization]);
 
   const [title, setTitle] = useState('');
 
@@ -51,6 +52,24 @@ const GrpDashboard = ({
   const [childStyle, setChildStyle] = useState({
     display: ''
   });
+
+  const [year, setYear] = useState(moment().year());
+
+  const [cat, setCat] = useState('Vacation');
+
+  const [categoryShow, setCategoryShow] = useState(false);
+
+  const [yearShow, setYearShow] = useState(false);
+
+  const selectYear = y => {
+    setYear(y);
+    setYearShow(!yearShow);
+  };
+
+  const selectCategory = c => {
+    setCat(c);
+    setCategoryShow(!categoryShow);
+  };
 
   const showOrgSelect = e => {
     setParentStyle({ display: 'none' });
@@ -65,18 +84,23 @@ const GrpDashboard = ({
     return <Redirect to='/dashboard/individual' />;
   }
 
+  const confirm = request => {
+    confirmRequest(request);
+    getRequestsByOrg(org.organization._id);
+  };
+
   const orgs = org.organizations.filter(o => o.head._id === user._id);
 
-  const getRequestsByOrg = o => {
-    let totalRequestDays = 0;
-    if (request.requests.length > 0) {
-      o.members.map(m =>
-        request.requests.map(
-          r => r.user === m && r.isConfirmed && totalRequestDays++
-        )
+  const yearSelector = () => {
+    let years = [];
+    for (let i = 4; i >= 0; i--) {
+      years.push(
+        moment()
+          .subtract(i, 'years')
+          .year()
       );
     }
-    return totalRequestDays;
+    return years;
   };
 
   return (
@@ -125,21 +149,96 @@ const GrpDashboard = ({
                 </div>
               </div>
             </div>
-            <div className='grid-item'>
-              <div className='grid-container p-0'>
-                {/* charts */}
-                {category.categories.map((c, i) => (
-                  <div key={c._id} className='grid-item'>
-                    <div id={`chart${i + 1}`}>
-                      <Chart
-                        category={c}
-                        requestDays={getRequestsByOrg(org.organization)}
-                        org={org.organization}
-                      />
-                    </div>
+            <div className='grid-item p-0'>
+              <div className='chart-header'>
+                <div className='btn-group'>
+                  <button
+                    type='button'
+                    className='btn btn-secondary dropdown-toggle category-selector'
+                    data-toggle='dropdown'
+                    aria-haspopup='true'
+                    aria-expanded='false'
+                    onClick={e => setCategoryShow(!categoryShow)}
+                  >
+                    Category
+                  </button>
+                  <div className='category-label'>{cat}</div>
+                  <div
+                    className='category-dropdown-menu dropdown-menu-bottom'
+                    style={{ display: categoryShow ? '' : 'none' }}
+                  >
+                    {category.categories.length > 0 &&
+                      category.categories.map(c => (
+                        <button
+                          key={c._id}
+                          className='btn btn-secondary category-item'
+                          type='button'
+                          onClick={e => selectCategory(c.title)}
+                        >
+                          {c.title}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+                <div className='btn-group'>
+                  <button
+                    type='button'
+                    className='btn btn-secondary dropdown-toggle year-selector'
+                    data-toggle='dropdown'
+                    aria-haspopup='true'
+                    aria-expanded='false'
+                    onClick={e => setYearShow(!yearShow)}
+                  >
+                    Year
+                  </button>
+                  <div className='year-label'>{year}</div>
+                  <div
+                    className='year-dropdown-menu dropdown-menu-right'
+                    style={{ display: yearShow ? '' : 'none' }}
+                  >
+                    {yearSelector().map(y => (
+                      <button
+                        key={y}
+                        type='button'
+                        className='btn btn-secondary years'
+                        onClick={e => selectYear(y)}
+                      >
+                        {y}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* charts */}
+
+              {/* Start Chart */}
+              {category.categories.length > 0 &&
+                category.categories.map((c, i) => (
+                  <div
+                    key={i}
+                    id={`chart${i + 1}`}
+                    style={{ display: c.title === cat ? '' : 'none' }}
+                  >
+                    <Chart
+                      category={c}
+                      requestDays={
+                        request.requests.filter(
+                          r =>
+                            r.category._id === c._id &&
+                            r.isConfirmed &&
+                            moment(r.date).year() === year
+                        ).length
+                      }
+                      org={org.organization}
+                    />
+                    {/* <div className='center-label'>
+                    {c.isUnlimited
+                      ? 'Unltd'
+                      : `${getConfirmedRequestsByCategory(c._id)} / ${c.limit}`}
+                  </div> */}
                   </div>
                 ))}
-              </div>
+              {/* End Chart */}
             </div>
             <div className='grid-item'>
               <ul className='list-group'>
@@ -147,47 +246,43 @@ const GrpDashboard = ({
                 <li className='list-group-item pendinglist'>
                   <table className='list-table'>
                     <tbody>
-                      {org.organization.members.map(m =>
-                        request.requests.map(
-                          r =>
-                            r.user._id === m._id &&
-                            !r.isConfirmed && (
-                              <tr className='lh-40'>
-                                <td>{m.email}</td>
-                                <td>
-                                  <span
-                                    className='badge badge-pill'
-                                    style={{
-                                      background: `${r.category.color}`,
-                                      color: '#fff'
-                                    }}
-                                  >
-                                    {r.category.title}
-                                  </span>
-                                </td>
-                                <td align='center'>
-                                  {moment(r.date).format('YYYY.MM.DD')}
-                                </td>
-                                <td align='right'>
-                                  <span
-                                    className='sm-btn'
-                                    onClick={e => confirmRequest(r._id)}
-                                  >
-                                    <i className='fas fa-check-circle accept'></i>
-                                  </span>
-                                  <span
-                                    className='sm-btn'
-                                    onClick={e =>
-                                      deleteRequest(m.calendarId, r._id)
-                                    }
-                                  >
-                                    <i className='fas fa-times-circle decline'></i>
-                                  </span>
-                                </td>
-                              </tr>
-                            )
-                        )
-                      )}
+                      {request.requests
+                        .filter(r => !r.isConfirmed)
+                        .map(r => (
+                          <tr key={r._id} className='lh-40'>
+                            <td>{r.user.email}</td>
+                            <td>
+                              <span
+                                className='badge badge-pill'
+                                style={{
+                                  background: `${r.category.color}`,
+                                  color: '#fff'
+                                }}
+                              >
+                                {r.category.title}
+                              </span>
+                            </td>
+                            <td align='center'>
+                              {moment(r.date)
+                                .add(1, 'days')
+                                .format('YYYY.MM.DD')}
+                            </td>
+                            <td align='right'>
+                              <span
+                                className='sm-btn'
+                                onClick={e => confirm(r)}
+                              >
+                                <i className='fas fa-check-circle accept'></i>
+                              </span>
+                              <span
+                                className='sm-btn'
+                                onClick={e => deleteRequest(r)}
+                              >
+                                <i className='fas fa-times-circle decline'></i>
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </li>
@@ -210,7 +305,7 @@ GrpDashboard.propTypes = {
   getAllOrganizations: PropTypes.func.isRequired,
   getOrganizationByTitle: PropTypes.func.isRequired,
   getAllCategories: PropTypes.func.isRequired,
-  getAllRequests: PropTypes.func.isRequired,
+  getRequestsByOrg: PropTypes.func.isRequired,
   confirmRequest: PropTypes.func.isRequired,
   deleteRequest: PropTypes.func.isRequired
 };
@@ -226,7 +321,7 @@ export default connect(mapStateToProps, {
   getAllOrganizations,
   getOrganizationByTitle,
   getAllCategories,
-  getAllRequests,
+  getRequestsByOrg,
   confirmRequest,
   deleteRequest
 })(GrpDashboard);

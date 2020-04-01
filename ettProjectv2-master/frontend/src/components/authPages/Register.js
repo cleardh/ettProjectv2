@@ -20,6 +20,21 @@ const Register = ({
   logout,
   history
 }) => {
+  const [validationClass, setValidationClass] = useState({
+    validateRole: 'form-control',
+    validateJob: 'form-control',
+    validateDateHired: 'form-control',
+    validatePhone: 'form-control',
+    validateCalendarId: 'form-control'
+  });
+  const {
+    validateRole,
+    validateJob,
+    validateDateHired,
+    validatePhone,
+    validateCalendarId
+  } = validationClass;
+
   useEffect(() => {
     getAllJobs();
   }, [getAllJobs]);
@@ -39,8 +54,8 @@ const Register = ({
     _phone: '',
     _calendarId: ''
   });
-
   const { _role, _job, _dateHired, _phone, _calendarId } = formData;
+  console.log(formData);
 
   const onChange = e =>
     setFormData({
@@ -75,9 +90,20 @@ const Register = ({
                   <div className='form-group'>
                     <label>Role</label>
                     <select
-                      className='form-control'
+                      className={validateRole}
                       name='_role'
                       value={_role}
+                      onBlur={e =>
+                        _role === ''
+                          ? setValidationClass({
+                              ...validationClass,
+                              validateRole: 'form-control is-invalid'
+                            })
+                          : setValidationClass({
+                              ...validationClass,
+                              validateRole: 'form-control'
+                            })
+                      }
                       onChange={e => {
                         setFormData({ ...formData, _role: e.target.value });
                         getRoleByTitle(e.target.value);
@@ -90,14 +116,26 @@ const Register = ({
                         </option>
                       ))}
                     </select>
+                    <div className='invalid-feedback'>Role is required</div>
                   </div>
 
                   <div className='form-group'>
                     <label>Job</label>
                     <select
-                      className='form-control'
+                      className={validateJob}
                       name='_job'
                       value={_job}
+                      onBlur={e =>
+                        _job === ''
+                          ? setValidationClass({
+                              ...validationClass,
+                              validateJob: 'form-control is-invalid'
+                            })
+                          : setValidationClass({
+                              ...validationClass,
+                              validateJob: 'form-control'
+                            })
+                      }
                       onChange={e => {
                         setFormData({ ...formData, _job: e.target.value });
                         getJobByTitle(e.target.value);
@@ -110,29 +148,56 @@ const Register = ({
                         </option>
                       ))}
                     </select>
+                    <div className='invalid-feedback'>Job is required</div>
                   </div>
 
                   <div className='form-group'>
                     <label>Date Hired</label>
                     <input
                       type='date'
-                      className='form-control'
+                      className={validateDateHired}
                       name='_dateHired'
                       value={_dateHired}
+                      onBlur={e =>
+                        _dateHired === ''
+                          ? setValidationClass({
+                              ...validationClass,
+                              validateDateHired: 'form-control is-invalid'
+                            })
+                          : setValidationClass({
+                              ...validationClass,
+                              validateDateHired: 'form-control'
+                            })
+                      }
                       onChange={e => onChange(e)}
                     />
+                    <div className='invalid-feedback'>
+                      Date Hired is required
+                    </div>
                   </div>
 
                   <div className='form-group'>
                     <label>Phone</label>
                     <input
                       type='text'
-                      className='form-control'
+                      className={validatePhone}
                       name='_phone'
                       placeholder='000-000-0000'
                       value={_phone}
+                      onBlur={e =>
+                        _phone === ''
+                          ? setValidationClass({
+                              ...validationClass,
+                              validatePhone: 'form-control is-invalid'
+                            })
+                          : setValidationClass({
+                              ...validationClass,
+                              validatePhone: 'form-control'
+                            })
+                      }
                       onChange={e => onChange(e)}
                     />
+                    <div className='invalid-feedback'>Phone is required</div>
                   </div>
 
                   <span className='form-group'>
@@ -150,12 +215,26 @@ const Register = ({
                     </label>
                     <input
                       type='text'
-                      className='form-control'
+                      className={validateCalendarId}
                       name='_calendarId'
                       placeholder='Your Public Google Calendar ID'
                       value={_calendarId}
+                      onBlur={e =>
+                        _calendarId === ''
+                          ? setValidationClass({
+                              ...validationClass,
+                              validateCalendarId: 'form-control is-invalid'
+                            })
+                          : setValidationClass({
+                              ...validationClass,
+                              validateCalendarId: 'form-control'
+                            })
+                      }
                       onChange={e => onChange(e)}
                     />
+                    <div className='invalid-feedback'>
+                      Calendar ID is required
+                    </div>
                   </span>
                 </fieldset>
                 <button type='submit' className='btn btn-primary block'>

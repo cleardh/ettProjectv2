@@ -1,6 +1,7 @@
 import {
   ADD_CATEGORY,
   DELETE_CATEGORY,
+  UPDATE_CATEGORY,
   GET_CATEGORY,
   GET_CATEGORIES,
   CLEAR_CATEGORY,
@@ -22,6 +23,12 @@ export default function(state = initialState, action) {
         ...state,
         category: payload,
         categories: state.categories.concat(payload),
+        loading: false
+      };
+    case UPDATE_CATEGORY:
+      return {
+        ...state,
+        category: payload,
         loading: false
       };
     case GET_CATEGORY:

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../../../assets/img/logo.png';
 import { connect } from 'react-redux';
@@ -6,6 +6,11 @@ import PropTypes from 'prop-types';
 import { logout } from '../../../actions/auth';
 
 const GrpNavbar = ({ user, logout }) => {
+  const [dropdown, setDropdown] = useState({
+    display: 'none'
+  });
+  const { display } = dropdown;
+
   return (
     <nav className='navbar navbar-expand-lg navbar-dark bg-primary'>
       <Link to='/dashboard/individual' className='brand-link'>
@@ -24,9 +29,40 @@ const GrpNavbar = ({ user, logout }) => {
         aria-controls='navbarColor01'
         aria-expanded='false'
         aria-label='Toggle navigation'
+        onClick={e =>
+          setDropdown({
+            display: display === 'block' ? 'none' : 'block'
+          })
+        }
       >
         <span className='navbar-toggler-icon'></span>
       </button>
+
+      <div
+        className='nav-dropdown-menu'
+        aria-labelledby='dropdownMenuLink'
+        style={dropdown}
+      >
+        <div className='navbar-nav'>
+          <Link className='dropdown-items' to='/dashboard/individual'>
+            Home
+          </Link>
+          <Link className='dropdown-items' to='/about'>
+            About
+          </Link>
+          <Link className='dropdown-items' to='/dashboard/individual'>
+            Individual
+          </Link>
+          {user.role.isAdmin && (
+            <Link to='/admin/main' className='dropdown-items'>
+              Admin
+            </Link>
+          )}
+          <Link className='dropdown-items' to='/' onClick={() => logout()}>
+            Logout
+          </Link>
+        </div>
+      </div>
 
       <div className='collapse navbar-collapse' id='navbarColor01'>
         <ul className='navbar-nav mr-auto'>

@@ -31,8 +31,8 @@ const Chart = ({ category, requestDays, org }) => {
     <Fragment>
       <DonutChart
         chartType='PieChart'
-        width='280px'
-        height='300px'
+        width='600px'
+        height='600px'
         data={data}
         options={options}
       />

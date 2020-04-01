@@ -31,6 +31,7 @@ export const CLEAR_ROLE = 'CLEAR_ROLE';
 // Category
 export const ADD_CATEGORY = 'ADD_CATEGORY';
 export const DELETE_CATEGORY = 'DELETE_CATEGORY';
+export const UPDATE_CATEGORY = 'UPDATE_CATEGORY';
 export const GET_CATEGORY = 'GET_CATEGORY';
 export const GET_CATEGORIES = 'GET_CATEGORIES';
 export const CATEGORY_ERROR = 'CATEGORY_ERROR';
@@ -60,3 +61,6 @@ export const GET_LEVEL = 'GET_LEVEL';
 export const GET_LEVELS = 'GET_LEVELS';
 export const LEVEL_ERROR = 'LEVEL_ERROR';
 export const CLEAR_LEVEL = 'CLEAR_LEVEL';
+// Alert
+export const SET_ALERT = 'SET_ALERT';
+export const REMOVE_ALERT = 'REMOVE_ALERT';

@@ -7,6 +7,7 @@ import level from './level';
 import organization from './organization';
 import request from './request';
 import role from './role';
+import alert from './alert';
 
 export default combineReducers({
   auth,
@@ -16,5 +17,6 @@ export default combineReducers({
   level,
   organization,
   request,
-  role
+  role,
+  alert
 });

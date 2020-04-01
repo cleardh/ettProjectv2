@@ -8,11 +8,12 @@ import {
   REQUEST_ERROR
 } from './types';
 import { tokenConfig } from './auth';
+import { setAlert } from './alert';
 
 export const addRequest = (formData, calendarId) => (dispatch, getState) => {
   axios
     .post('http://localhost:5000/api/request', formData, tokenConfig(getState))
-    .then(res => {
+    .then(res =>
       axios
         .post(
           'http://localhost:5000/api/calendar',
@@ -23,6 +24,7 @@ export const addRequest = (formData, calendarId) => (dispatch, getState) => {
           tokenConfig(getState)
         )
         .then(res => {
+          dispatch(setAlert('Request placed successfully', 'success'));
           dispatch({
             type: ADD_REQUEST,
             payload: res.data
@@ -33,10 +35,10 @@ export const addRequest = (formData, calendarId) => (dispatch, getState) => {
             type: REQUEST_ERROR,
             payload: { msg: err.message }
           })
-        );
-    })
+        )
+    )
     .catch(err => {
-      window.alert('Invalid request');
+      dispatch(setAlert('Invalid request', 'danger'));
       dispatch({
         type: REQUEST_ERROR,
         payload: { msg: err.message }
@@ -44,17 +46,23 @@ export const addRequest = (formData, calendarId) => (dispatch, getState) => {
     });
 };
 
-export const deleteRequest = (calendarId, id) => (dispatch, getState) => {
+export const deleteRequest = request => (dispatch, getState) => {
   if (window.confirm('Do you want to delete this request for sure?')) {
     axios
-      .delete(`http://localhost:5000/api/request/${id}`, tokenConfig(getState))
+      .delete(
+        `http://localhost:5000/api/request/${request._id}`,
+        tokenConfig(getState)
+      )
       .then(res => {
         axios
           .delete(
-            `http://localhost:5000/api/calendar/${calendarId}/${res.data.googleEventId}`,
+            `http://localhost:5000/api/calendar/${request.user.calendarId}/${res.data.googleEventId}`,
             tokenConfig(getState)
           )
-          .then(res => dispatch({ type: DELETE_REQUEST, payload: res.data }))
+          .then(res => {
+            dispatch({ type: DELETE_REQUEST, payload: request });
+            dispatch(setAlert('Request removed', 'success'));
+          })
           .catch(err =>
             dispatch({
               type: REQUEST_ERROR,
@@ -78,7 +86,11 @@ export const generateReport = dateRange => (dispatch, getState) => {
       dateRange,
       tokenConfig(getState)
     )
-    .then(res => window.alert(`${res.data.file} is generated successfully`))
+    .then(res =>
+      dispatch(
+        setAlert(`${res.data.file} has been generated successfully`, 'success')
+      )
+    )
     .catch(err =>
       dispatch({
         type: REQUEST_ERROR,
@@ -90,6 +102,26 @@ export const generateReport = dateRange => (dispatch, getState) => {
 export const getAllRequests = () => (dispatch, getState) => {
   axios
     .get(`http://localhost:5000/api/request`, tokenConfig(getState))
+    .then(res =>
+      dispatch({
+        type: GET_REQUESTS,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: REQUEST_ERROR,
+        payload: { msg: err.message }
+      })
+    );
+};
+
+export const getRequestsByOrg = orgId => (dispatch, getState) => {
+  axios
+    .get(
+      `http://localhost:5000/api/request/org/${orgId}`,
+      tokenConfig(getState)
+    )
     .then(res =>
       dispatch({
         type: GET_REQUESTS,
@@ -170,12 +202,46 @@ export const getConfirmedRequestsByEmployeeCategory = (
     );
 };
 
-export const confirmRequest = id => (dispatch, getState) => {
+export const confirmRequest = request => (dispatch, getState) => {
   dispatch({ type: CLEAR_REQUEST });
 
   axios
-    .put(`http://localhost:5000/api/request/${id}`, null, tokenConfig(getState))
+    .put(
+      `http://localhost:5000/api/request/${request._id}`,
+      null,
+      tokenConfig(getState)
+    )
     .then(res => {
+      // Delete event from google calendar
+      axios
+        .delete(
+          `http://localhost:5000/api/calendar/${request.user.calendarId}/${res.data.googleEventId}`,
+          tokenConfig(getState)
+        )
+        .catch(err =>
+          dispatch({
+            type: REQUEST_ERROR,
+            payload: { msg: err.message }
+          })
+        );
+      // Add event to google calendar
+      axios
+        .post(
+          'http://localhost:5000/api/calendar',
+          {
+            calendarId: request.user.calendarId,
+            requestId: request._id
+          },
+          tokenConfig(getState)
+        )
+        .then(res => dispatch(setAlert('Request confirmed', 'success')))
+        .catch(err =>
+          dispatch({
+            type: REQUEST_ERROR,
+            payload: { msg: err.message }
+          })
+        );
+
       dispatch({
         type: GET_REQUEST,
         payload: res.data

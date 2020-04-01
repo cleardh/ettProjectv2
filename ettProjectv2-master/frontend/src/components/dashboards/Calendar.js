@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
 import '../../assets/css/calendar.css';
 
 export default class Calendar extends React.Component {
@@ -148,7 +149,7 @@ export default class Calendar extends React.Component {
     let months = [];
     let nextten = moment()
       .set('year', props)
-      .add('year', 12)
+      .add(12, 'year')
       .format('Y');
 
     let tenyear = this.getDates(props, nextten);
@@ -218,14 +219,22 @@ export default class Calendar extends React.Component {
           `${this.state.selectedDay.year}-${this.state.selectedDay.month}-${d}`
         ).format('YYYY-MM-DD');
         this.props.data(data);
+
         const eventList = this.props.events.filter(
           e =>
-            moment(e.date).format('Y') === this.year() &&
-            moment(e.date).format('MMMM') === this.month()
+            moment(e.date)
+              .add(1, 'days')
+              .format('Y') === this.year() &&
+            moment(e.date)
+              .add(1, 'days')
+              .format('MMMM') === this.month()
         );
 
         eventList.map(
-          e => moment(e.date).date() + 1 === d && this.props.selectedEvent(e)
+          e =>
+            moment(e.date)
+              .add(1, 'days')
+              .date() === d && this.props.selectedEvent(e)
         );
       }
     );
@@ -252,12 +261,18 @@ export default class Calendar extends React.Component {
           : '';
       const eventList = this.props.events.filter(
         e =>
-          moment(e.date).format('Y') === this.year() &&
-          moment(e.date).format('MMMM') === this.month()
+          moment(e.date)
+            .add(1, 'days')
+            .format('Y') === this.year() &&
+          moment(e.date)
+            .add(1, 'days')
+            .format('MMMM') === this.month()
       );
       const style = eventList.map(
         e =>
-          moment(e.date).date() + 1 === d &&
+          moment(e.date)
+            .add(1, 'days')
+            .date() === d &&
           (e.isConfirmed
             ? {
                 background: `${e.category.color}`
@@ -291,6 +306,7 @@ export default class Calendar extends React.Component {
         }
         return styles;
       });
+
       daysInMonth.push(
         <td
           key={d}
@@ -321,9 +337,10 @@ export default class Calendar extends React.Component {
       }
     });
 
-    let daysinmonth = rows.map((d, i) => {
-      return <tr key={`${this.year()}${this.month()}${i}`}>{d}</tr>;
+    let daysinmonth = rows.map(d => {
+      return <tr key={uuidv4()}>{d}</tr>;
     });
+
     return (
       <div className='tail-datetime-calendar'>
         <div className='calendar-navi'>

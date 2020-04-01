@@ -33,7 +33,7 @@ export default function(state = initialState, action) {
     case DELETE_REQUEST:
       return {
         ...state,
-        requests: state.requests.filter(request => request.id !== payload.id),
+        requests: state.requests.filter(request => request._id !== payload._id),
         loading: false
       };
     case GET_REQUESTS:

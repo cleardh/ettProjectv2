@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { authenticate } from '../../actions/auth';
 import Loading from '../layouts/Loading';
+import { setAlert } from '../../actions/alert';
 
 const Auth = ({ auth, authenticate }) => {
   useEffect(() => {
@@ -12,7 +13,8 @@ const Auth = ({ auth, authenticate }) => {
 
   if (auth.user) {
     if (auth.user.calendarId === '') {
-      return <Redirect to='/register' />;
+      // return <Redirect to='/register' />;
+      setAlert('Please Fill Out Registration Form Below', 'info');
     } else {
       switch (localStorage.getItem('component')) {
         case 'About':

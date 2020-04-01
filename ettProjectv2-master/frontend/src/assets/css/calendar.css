@@ -112,7 +112,7 @@
   font-size: 12px;
   text-align: center;
   font-weight: normal;
-  line-height: 70px;
+  line-height: 65px;
   border: 0;
   background-color: #223344;
 }
@@ -169,7 +169,7 @@
 .tail-datetime-calendar .calendar-date table.calendar-month tbody tr > * {
   width: 81.66666666666667px;
   padding: 5px;
-  line-height: 70px;
+  line-height: 65px;
 }
 .tail-datetime-calendar .calendar-date table.calendar-month tbody tr > * span {
   display: block;

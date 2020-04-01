@@ -9,6 +9,7 @@ import Landing from './components/authPages/Landing';
 import Register from './components/authPages/Register';
 import Auth from './components/authPages/Auth';
 import Routes from './components/Routes';
+import Alert from './components/layouts/Alert';
 
 const App = () => {
   useEffect(() => {
@@ -19,6 +20,7 @@ const App = () => {
     <Provider store={store}>
       <Router>
         <Fragment>
+          <Alert />
           <Switch>
             <Route exact path='/' component={Landing} />
             <Route exact path='/auth' component={Auth} />

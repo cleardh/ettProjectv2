@@ -1,24 +1,29 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import Loading from '../layouts/Loading';
 import {
   addCategory,
   deleteCategory,
-  getAllCategories
+  updateCategory,
+  getAllCategories,
+  getCategoryByTitle
 } from '../../actions/category';
 
 const ManageCategory = ({
   category,
   addCategory,
   deleteCategory,
-  getAllCategories
+  updateCategory,
+  getAllCategories,
+  getCategoryByTitle
 }) => {
   localStorage.setItem('component', 'ManageCategory');
   useEffect(() => {
     getAllCategories();
-  }, [getAllCategories, category.categories.length]);
+  }, [getAllCategories, category.categories]);
 
   const [newCategory, setNewCategory] = useState({
     title: '',
@@ -33,6 +38,48 @@ const ManageCategory = ({
     setNewCategory({
       ...newCategory,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const [btn, setBtn] = useState('add');
+
+  const loadCategory = (e, title) => {
+    getCategoryByTitle(title);
+    setBtn('edit');
+  };
+
+  useEffect(() => {
+    if (btn === 'edit') {
+      setNewCategory({
+        title: category.category ? category.category.title : '',
+        limit: category.category ? category.category.limit : '',
+        isUnlimited: category.category ? category.category.isUnlimited : '',
+        color: category.category ? category.category.color : ''
+      });
+    }
+  }, [btn, category.category]);
+
+  const addOrEdit = e => {
+    btn === 'add'
+      ? addCategory(newCategory)
+      : updateCategory(category.category._id, newCategory);
+
+    setBtn('add');
+    setNewCategory({
+      title: '',
+      limit: '',
+      isUnlimited: false,
+      color: ''
+    });
+  };
+
+  const cancel = e => {
+    setBtn('add');
+    setNewCategory({
+      title: '',
+      limit: '',
+      isUnlimited: false,
+      color: ''
     });
   };
 
@@ -60,7 +107,13 @@ const ManageCategory = ({
                     {category.categories.map(c => (
                       <Fragment key={c._id}>
                         <tr>
-                          <th scope='row'>{c.title}</th>
+                          <th
+                            scope='row'
+                            className='org-title-link'
+                            onClick={e => loadCategory(e, c.title)}
+                          >
+                            {c.title}
+                          </th>
                           {c.isUnlimited ? (
                             <td>Unlimited</td>
                           ) : (
@@ -168,21 +221,26 @@ const ManageCategory = ({
                           className='btn btn-outline-secondary btn-add'
                           type='button'
                           name='new_role'
-                          onClick={e => {
-                            addCategory(newCategory);
-                            setNewCategory({
-                              title: '',
-                              limit: '',
-                              isUnlimited: false
-                            });
-                          }}
+                          disabled={(!title || !color) && true}
+                          onClick={e => addOrEdit(e)}
                         >
-                          <i className='fas fa-plus'></i>
+                          {btn === 'add' ? (
+                            <i className='fas fa-plus'></i>
+                          ) : (
+                            <i className='far fa-edit'></i>
+                          )}
                         </button>
                       </td>
                     </tr>
                   </tbody>
                 </table>
+                <button
+                  type='button'
+                  className='btn btn-danger block'
+                  onClick={e => cancel(e)}
+                >
+                  Cancel
+                </button>
               </fieldset>
             </form>
           </div>
@@ -194,6 +252,15 @@ const ManageCategory = ({
   );
 };
 
+ManageCategory.propTypes = {
+  category: PropTypes.object,
+  addCategory: PropTypes.func.isRequired,
+  deleteCategory: PropTypes.func.isRequired,
+  updateCategory: PropTypes.func.isRequired,
+  getAllCategories: PropTypes.func.isRequired,
+  getCategoryByTitle: PropTypes.func.isRequired
+};
+
 const mapStateToProps = state => ({
   category: state.category
 });
@@ -201,5 +268,7 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
   addCategory,
   deleteCategory,
-  getAllCategories
+  updateCategory,
+  getAllCategories,
+  getCategoryByTitle
 })(ManageCategory);
