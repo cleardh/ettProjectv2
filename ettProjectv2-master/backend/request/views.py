@@ -74,9 +74,9 @@ def downloadRequests(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="requests.csv"'
     writer = csv.writer(response, delimiter=',')
-    writer.writerow(['RequestID', 'profile', 'dateS', 'dateE', 'category', 'isConfirmed', 'googleEventID'])
+    writer.writerow(['Email', 'Start Date', 'End Date', 'Category'])
     for obj in requests:
-        writer.writerow([obj.RequestID, obj.profile, obj.dateS, obj.dateE, obj.category, obj.isConfirmed, obj.googleEventID])
+        writer.writerow([obj.profile.email, obj.dateS, obj.dateE, obj.category])
     return response
 
 

@@ -10,10 +10,14 @@ from request.views import getRequests, downloadRequests, getRequestsByEmail, get
 from roles.views import getAllRoles, createRole, getRoleByID, deleteRoleByID, getRoleByTitle
 from userorganization.views import getOrgs, addUOrgs, deleteUOrg
 from level.views import getAllLevels, createLevel, deleteLevelByID, getLevelByTitle
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 urlpatterns = [    
     path('admin/', admin.site.urls),
+
+    url(r'^get-token/$', TokenObtainPairView.as_view()),
+    url(r'^token-refresh/$', TokenRefreshView.as_view()),
 
     url(r'^category/$', getAllCategories),
     url(r'^category-add/$', createCategory),
