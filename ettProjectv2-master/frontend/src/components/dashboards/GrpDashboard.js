@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
@@ -13,7 +13,6 @@ import {
   confirmRequest,
   deleteRequest
 } from '../../actions/request';
-import Loading from '../layouts/Loading';
 import GrpNavbar from '../layouts/navbars/GrpNavbar';
 import OrgSelection from './OrgSelection';
 import Chart from './Chart';
@@ -28,7 +27,8 @@ const GrpDashboard = ({
   getAllCategories,
   getRequestsByOrg,
   confirmRequest,
-  deleteRequest
+  deleteRequest,
+  history
 }) => {
   localStorage.setItem('component', 'GrpDashboard');
 
@@ -47,7 +47,7 @@ const GrpDashboard = ({
   const [title, setTitle] = useState('');
 
   const [parentStyle, setParentStyle] = useState({
-    display: ''
+    display: 'none'
   });
   const [childStyle, setChildStyle] = useState({
     display: ''
@@ -55,7 +55,11 @@ const GrpDashboard = ({
 
   const [year, setYear] = useState(moment().year());
 
-  const [cat, setCat] = useState('Vacation');
+  const [cat, setCat] = useState({
+    categoryTitle: 'Vacation',
+    categoryColor: '#f47c3c'
+  });
+  const { categoryTitle, categoryColor } = cat;
 
   const [categoryShow, setCategoryShow] = useState(false);
 
@@ -67,7 +71,10 @@ const GrpDashboard = ({
   };
 
   const selectCategory = c => {
-    setCat(c);
+    setCat({
+      categoryTitle: c.title,
+      categoryColor: c.color
+    });
     setCategoryShow(!categoryShow);
   };
 
@@ -114,7 +121,7 @@ const GrpDashboard = ({
           childStyle={s => setChildStyle(s)}
         />
       </div>
-      {org.organization ? (
+      {org.organization && (
         <Fragment>
           <div className='grid-container' style={parentStyle}>
             <div className='grid-item info-grid'>
@@ -126,7 +133,7 @@ const GrpDashboard = ({
                   <table className='tbl'>
                     <tbody>
                       <tr>
-                        <td>
+                        <td className='fw-500'>
                           {org.organization.head.firstName +
                             ' ' +
                             org.organization.head.lastName}
@@ -142,7 +149,9 @@ const GrpDashboard = ({
                         </td>
                       </tr>
                       <tr>
-                        <td>{org.organization.head.email}</td>
+                        <td className='fw-500'>
+                          {org.organization.head.email}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -158,11 +167,14 @@ const GrpDashboard = ({
                     data-toggle='dropdown'
                     aria-haspopup='true'
                     aria-expanded='false'
+                    style={{
+                      background: `${categoryColor}`,
+                      borderColor: `${categoryColor}`
+                    }}
                     onClick={e => setCategoryShow(!categoryShow)}
                   >
-                    Category
+                    {categoryTitle}
                   </button>
-                  <div className='category-label'>{cat}</div>
                   <div
                     className='category-dropdown-menu dropdown-menu-bottom'
                     style={{ display: categoryShow ? '' : 'none' }}
@@ -173,7 +185,11 @@ const GrpDashboard = ({
                           key={c._id}
                           className='btn btn-secondary category-item'
                           type='button'
-                          onClick={e => selectCategory(c.title)}
+                          style={{
+                            background: `${c.color}`,
+                            borderColor: `${c.color}`
+                          }}
+                          onClick={e => selectCategory(c)}
                         >
                           {c.title}
                         </button>
@@ -189,9 +205,8 @@ const GrpDashboard = ({
                     aria-expanded='false'
                     onClick={e => setYearShow(!yearShow)}
                   >
-                    Year
+                    {year}
                   </button>
-                  <div className='year-label'>{year}</div>
                   <div
                     className='year-dropdown-menu dropdown-menu-right'
                     style={{ display: yearShow ? '' : 'none' }}
@@ -209,15 +224,13 @@ const GrpDashboard = ({
                   </div>
                 </div>
               </div>
-              {/* charts */}
-
               {/* Start Chart */}
               {category.categories.length > 0 &&
                 category.categories.map((c, i) => (
                   <div
                     key={i}
                     id={`chart${i + 1}`}
-                    style={{ display: c.title === cat ? '' : 'none' }}
+                    style={{ display: c.title === categoryTitle ? '' : 'none' }}
                   >
                     <Chart
                       category={c}
@@ -241,10 +254,10 @@ const GrpDashboard = ({
               {/* End Chart */}
             </div>
             <div className='grid-item'>
-              <ul className='list-group'>
+              <ul className='list-group grp-listgroup'>
                 <li className='list-group-item active'>PENDING REQUESTS</li>
                 <li className='list-group-item pendinglist'>
-                  <table className='list-table'>
+                  <table className='list-table fw-500'>
                     <tbody>
                       {request.requests
                         .filter(r => !r.isConfirmed)
@@ -287,11 +300,44 @@ const GrpDashboard = ({
                   </table>
                 </li>
               </ul>
+
+              {/* All members */}
+              <ul
+                className='list-group grp-listgroup'
+                style={{ marginTop: '1em' }}
+              >
+                <li className='list-group-item active'>ALL MEMBERS</li>
+                {org.organization.members.map((m, i) => (
+                  <li
+                    key={m._id}
+                    className='list-group-item fw-500 member-row'
+                    onClick={e =>
+                      history.push({
+                        pathname: '/dashboard/individual',
+                        state: { email: m.email }
+                      })
+                    }
+                  >
+                    <div key={m._id} className='lh-20'>
+                      <span className='member-cell'>{i + 1}</span>
+                      <span className='member-cell'>{m.email}</span>
+                      <span
+                        className='member-cell'
+                        align='center'
+                        style={{ width: '34%' }}
+                      >
+                        {m.firstName}
+                      </span>
+                      <span className='member-cell' align='right'>
+                        {m.lastName}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </Fragment>
-      ) : (
-        <Loading />
       )}
     </Fragment>
   );
@@ -324,4 +370,4 @@ export default connect(mapStateToProps, {
   getRequestsByOrg,
   confirmRequest,
   deleteRequest
-})(GrpDashboard);
+})(withRouter(GrpDashboard));

@@ -2,22 +2,28 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import background_calendar from '../../assets/img/background_calendar.png';
 import { connect } from 'react-redux';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import Loading from '../layouts/Loading';
+import { getAllEmployees } from '../../actions/employee';
 import { getAllJobs, getJobByTitle } from '../../actions/job';
 import { getAllRoles, getRoleByTitle } from '../../actions/role';
 import { register, logout } from '../../actions/auth';
+import { setAlert } from '../../actions/alert';
 
 const Register = ({
   job,
   role,
   user,
+  employee,
+  getAllEmployees,
   getAllJobs,
   getAllRoles,
   getJobByTitle,
   getRoleByTitle,
   register,
   logout,
+  setAlert,
   history
 }) => {
   const [validationClass, setValidationClass] = useState({
@@ -36,6 +42,10 @@ const Register = ({
   } = validationClass;
 
   useEffect(() => {
+    getAllEmployees();
+  }, [getAllEmployees]);
+
+  useEffect(() => {
     getAllJobs();
   }, [getAllJobs]);
 
@@ -46,6 +56,20 @@ const Register = ({
   if (!user) {
     history.push('/');
   }
+
+  const validateUniqueCalId = calId => {
+    let isValid = true;
+    if (employee.employees.length > 0) {
+      employee.employees.forEach(e => {
+        console.log(e.calendarId === calId);
+
+        if (e.calendarId === calId) {
+          isValid = false;
+        }
+      });
+    }
+    return isValid;
+  };
 
   const [formData, setFormData] = useState({
     _role: '',
@@ -65,14 +89,32 @@ const Register = ({
 
   const onSubmit = e => {
     e.preventDefault();
-    const body = {
-      role: role.role,
-      job: job.job,
-      dateHired: _dateHired,
-      phone: _phone,
-      calendarId: _calendarId
-    };
-    register(body, user._id, history);
+    if (_role && _job && _dateHired && _phone && _calendarId) {
+      console.log(_calendarId);
+      console.log(validateUniqueCalId(_calendarId));
+
+      if (validateUniqueCalId(_calendarId)) {
+        if (
+          moment(_dateHired).format('YYYY-MM-DD') >
+          moment().format('YYYY-MM-DD')
+        ) {
+          setAlert('Date Hired cannot be in the future', 'danger');
+        } else {
+          const body = {
+            role: role.role,
+            job: job.job,
+            dateHired: _dateHired,
+            phone: _phone,
+            calendarId: _calendarId
+          };
+          register(body, user._id, history);
+        }
+      } else {
+        setAlert('CalendarId already exists', 'danger');
+      }
+    } else {
+      setAlert('Form incomplete', 'danger');
+    }
   };
 
   return (
@@ -105,8 +147,12 @@ const Register = ({
                             })
                       }
                       onChange={e => {
-                        setFormData({ ...formData, _role: e.target.value });
-                        getRoleByTitle(e.target.value);
+                        setFormData({
+                          ...formData,
+                          _role: e.target.value === '-' ? '' : e.target.value
+                        });
+                        e.target.value !== '-' &&
+                          getRoleByTitle(e.target.value);
                       }}
                     >
                       <option>-</option>
@@ -137,8 +183,11 @@ const Register = ({
                             })
                       }
                       onChange={e => {
-                        setFormData({ ...formData, _job: e.target.value });
-                        getJobByTitle(e.target.value);
+                        setFormData({
+                          ...formData,
+                          _job: e.target.value === '-' ? '' : e.target.value
+                        });
+                        e.target.value !== '-' && getJobByTitle(e.target.value);
                       }}
                     >
                       <option>-</option>
@@ -263,28 +312,34 @@ const Register = ({
 };
 
 Register.propTypes = {
+  getAllEmployees: PropTypes.func.isRequired,
   getAllJobs: PropTypes.func.isRequired,
   getAllRoles: PropTypes.func.isRequired,
   getRoleByTitle: PropTypes.func.isRequired,
   getJobByTitle: PropTypes.func.isRequired,
   register: PropTypes.func.isRequired,
   logout: PropTypes.func.isRequired,
+  setAlert: PropTypes.func.isRequired,
   job: PropTypes.object.isRequired,
   role: PropTypes.object.isRequired,
-  user: PropTypes.object
+  user: PropTypes.object,
+  employee: PropTypes.object
 };
 
 const mapStateToProps = state => ({
   job: state.job,
   role: state.role,
-  user: state.auth.user
+  user: state.auth.user,
+  employee: state.employee
 });
 
 export default connect(mapStateToProps, {
+  getAllEmployees,
   getAllJobs,
   getAllRoles,
   getRoleByTitle,
   getJobByTitle,
   register,
-  logout
+  logout,
+  setAlert
 })(withRouter(Register));

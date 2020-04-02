@@ -16,7 +16,7 @@ import { getEmployeeByEmail } from '../../actions/employee';
 import { setAlert } from '../../actions/alert';
 
 const IndDashboard = ({
-  email,
+  history,
   auth: { user },
   category,
   employee,
@@ -30,6 +30,12 @@ const IndDashboard = ({
   setAlert
 }) => {
   localStorage.removeItem('component');
+
+  let email = null;
+  if (history.location.state) {
+    email = history.location.state.email;
+  }
+
   const [formData, setFormData] = useState({
     _email: email ? email : '',
     _date: '',
@@ -74,7 +80,11 @@ const IndDashboard = ({
   };
 
   const deleteEvent = event => {
-    deleteRequest(event);
+    if (moment(_date).format('YYYY-MM-DD') < moment().format('YYYY-MM-DD')) {
+      setAlert('Old requests cannot be revoked', 'danger');
+    } else {
+      deleteRequest(event);
+    }
     setFormData({
       _email: '',
       _date: '',
@@ -96,15 +106,22 @@ const IndDashboard = ({
 
   const [year, setYear] = useState(moment().year());
 
-  const [cat, setCat] = useState('Vacation');
+  const [cat, setCat] = useState({
+    categoryTitle: 'Vacation',
+    categoryColor: '#f47c3c'
+  });
+  const { categoryTitle, categoryColor } = cat;
 
   const selectYear = y => {
     setYear(y);
     setYearShow(!yearShow);
   };
 
-  const selectCategory = c_title => {
-    setCat(c_title);
+  const selectCategory = c => {
+    setCat({
+      categoryTitle: c.title,
+      categoryColor: c.color
+    });
     setCategoryShow(!categoryShow);
   };
 
@@ -112,13 +129,18 @@ const IndDashboard = ({
     const userRequestsByCategoryThisYear = request.requests.filter(
       r =>
         r.category._id === category.category._id &&
-        r.user._id === user._id &&
+        r.user._id === employee.employee._id &&
         moment(r.date).year() === moment().year()
     ).length;
-    if (
-      category.category.isUnlimited ||
-      category.category.limit > userRequestsByCategoryThisYear
+
+    if (moment(_date).format('YYYY-MM-DD') < moment().format('YYYY-MM-DD')) {
+      setAlert('Requested date is in the past', 'danger');
+    } else if (
+      !category.category.isUnlimited &&
+      category.category.limit <= userRequestsByCategoryThisYear
     ) {
+      setAlert('Request denied due to limit', 'danger');
+    } else {
       addRequest(
         {
           email: _email,
@@ -127,8 +149,6 @@ const IndDashboard = ({
         },
         employee.employee.calendarId
       );
-    } else {
-      setAlert('Request denied due to limit', 'danger');
     }
 
     setFormData({
@@ -161,17 +181,17 @@ const IndDashboard = ({
                 <table className='tbl'>
                   <tbody>
                     <tr>
-                      <td>{employee.employee.job.title}</td>
-                      <td>{employee.employee.role.title}</td>
+                      <td className='fw-500'>{employee.employee.job.title}</td>
+                      <td className='fw-500'>{employee.employee.role.title}</td>
                     </tr>
                     <tr>
-                      <td>{employee.employee.email}</td>
-                      <td>{employee.employee.phone}</td>
+                      <td className='fw-500'>{employee.employee.email}</td>
+                      <td className='fw-500'>{employee.employee.phone}</td>
                     </tr>
                     <tr>
-                      <td>{`Since ${moment(employee.employee.dateHired).format(
-                        'MMM DD, YYYY'
-                      )}`}</td>
+                      <td className='fw-500'>{`Since ${moment(
+                        employee.employee.dateHired
+                      ).format('MMM DD, YYYY')}`}</td>
                       <td></td>
                     </tr>
                   </tbody>
@@ -188,11 +208,14 @@ const IndDashboard = ({
                   data-toggle='dropdown'
                   aria-haspopup='true'
                   aria-expanded='false'
+                  style={{
+                    background: `${categoryColor}`,
+                    borderColor: `${categoryColor}`
+                  }}
                   onClick={e => setCategoryShow(!categoryShow)}
                 >
-                  Category
+                  {categoryTitle}
                 </button>
-                <div className='category-label'>{cat}</div>
                 <div
                   className='category-dropdown-menu dropdown-menu-bottom'
                   style={{ display: categoryShow ? '' : 'none' }}
@@ -203,7 +226,11 @@ const IndDashboard = ({
                         key={c._id}
                         className='btn btn-secondary category-item'
                         type='button'
-                        onClick={e => selectCategory(c.title)}
+                        style={{
+                          background: `${c.color}`,
+                          borderColor: `${c.color}`
+                        }}
+                        onClick={e => selectCategory(c)}
                       >
                         {c.title}
                       </button>
@@ -219,9 +246,8 @@ const IndDashboard = ({
                   aria-expanded='false'
                   onClick={e => setYearShow(!yearShow)}
                 >
-                  Year
+                  {year}
                 </button>
-                <div className='year-label'>{year}</div>
                 <div
                   className='year-dropdown-menu dropdown-menu-right'
                   style={{ display: yearShow ? '' : 'none' }}
@@ -245,7 +271,7 @@ const IndDashboard = ({
                 <div
                   key={i}
                   id={`chart${i + 1}`}
-                  style={{ display: c.title === cat ? '' : 'none' }}
+                  style={{ display: c.title === categoryTitle ? '' : 'none' }}
                 >
                   <Chart
                     category={c}
@@ -334,7 +360,11 @@ const IndDashboard = ({
                               disabled={
                                 !selectedEvent ||
                                 (request.requests.filter(
-                                  r => r.date === selectedEvent.date
+                                  r =>
+                                    moment(r.date).format('YYYY-MM-DD') ===
+                                    moment(selectedEvent.date).format(
+                                      'YYYY-MM-DD'
+                                    )
                                 ).length < 1 &&
                                   true)
                               }

@@ -11,6 +11,8 @@ import { tokenConfig } from './auth';
 import { setAlert } from './alert';
 
 export const addRequest = (formData, calendarId) => (dispatch, getState) => {
+  console.log(formData, calendarId);
+
   axios
     .post('http://localhost:5000/api/request', formData, tokenConfig(getState))
     .then(res =>

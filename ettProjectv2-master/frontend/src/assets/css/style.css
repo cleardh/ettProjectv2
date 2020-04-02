@@ -537,6 +537,10 @@ legend {
   height: 77vh;
 }
 
+.lh-20 {
+  line-height: 20px;
+}
+
 .lh-40 {
   line-height: 40px;
 }
@@ -590,6 +594,7 @@ legend {
   line-height: 3em;
   border: 1px solid transparent;
   border-radius: 10px;
+  z-index: 2;
 }
 
 .alert-primary {
@@ -686,23 +691,25 @@ legend {
   border-radius: 10px;
 }
 
-.category-label {
-  position: absolute;
-  width: 200px;
-  text-align: center;
-  top: 65px;
-  z-index: 1;
-  font-weight: 600;
-  font-size: 18px;
+.fw-500 {
+  font-weight: 500;
 }
 
-.year-label {
-  position: absolute;
-  width: 85px;
-  text-align: center;
-  top: 65px;
-  right: 1.3em;
-  z-index: 1;
-  font-weight: 600;
-  font-size: 18px;
+.member-row {
+  display: table-row;
+  cursor: pointer;
+}
+
+.member-row:hover {
+  background: var(--light);
+}
+
+.member-cell {
+  display: table-cell;
+  width: 30%;
+}
+
+.grp-listgroup {
+  max-height: 20rem;
+  overflow: auto;
 }

@@ -6,15 +6,15 @@ import { authenticate } from '../../actions/auth';
 import Loading from '../layouts/Loading';
 import { setAlert } from '../../actions/alert';
 
-const Auth = ({ auth, authenticate }) => {
+const Auth = ({ auth, authenticate, setAlert }) => {
   useEffect(() => {
     authenticate();
   }, [authenticate]);
 
   if (auth.user) {
     if (auth.user.calendarId === '') {
-      // return <Redirect to='/register' />;
       setAlert('Please Fill Out Registration Form Below', 'info');
+      return <Redirect to='/register' />;
     } else {
       switch (localStorage.getItem('component')) {
         case 'About':
@@ -47,12 +47,13 @@ const Auth = ({ auth, authenticate }) => {
 };
 
 Auth.propTypes = {
+  auth: PropTypes.object,
   authenticate: PropTypes.func.isRequired,
-  auth: PropTypes.object
+  setAlert: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
   auth: state.auth
 });
 
-export default connect(mapStateToProps, { authenticate })(Auth);
+export default connect(mapStateToProps, { authenticate, setAlert })(Auth);
