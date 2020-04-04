@@ -18,7 +18,7 @@ class Profile(models.Model):
     dateHired   = models.DateField(auto_now_add=False, auto_now=False, default='2000-01-01', blank=True, null=True)
     phone       = models.CharField(max_length=30, default='000-000-0000', blank=True, null=True)
     calendarID  = models.CharField(max_length=30, default='0000000000', blank=True, null=True)
-    image       = models.ImageField(default='path/image', blank=True, null=True)
+    image       = models.CharField(max_length=1000, default='path/image', blank=True, null=True)
 
     def __str__(self):
         return str(self.user)
