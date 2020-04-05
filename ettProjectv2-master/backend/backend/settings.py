@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'organization',
     'request',
     'rest_framework',
-    'level',
+    'level',    
 ]
 
 MIDDLEWARE = [
