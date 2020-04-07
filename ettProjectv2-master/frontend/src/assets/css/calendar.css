@@ -136,17 +136,17 @@
 }
 /* Select a Day */
 .tail-datetime-calendar .calendar-date table tbody tr > *.today {
-  background: #efefef;
-  border-radius: 40px;
-  -webkit-border-radius: 40px;
+  /* background: #efefef; */
+  /* border-radius: 40px; */
+  /* -webkit-border-radius: 40px; */
 }
-.tail-datetime-calendar .calendar-date table tbody tr > *:hover {
+/* .tail-datetime-calendar .calendar-date table tbody tr > *:hover {
   color: #fff;
   border-color: #325d88;
   background: #325d88;
   border-radius: 40px;
   -webkit-border-radius: 40px;
-}
+} */
 .tail-datetime-calendar .calendar-date table tbody tr > *.empty,
 .tail-datetime-calendar .calendar-date table tbody tr > *.disable {
   color: #8899aa;

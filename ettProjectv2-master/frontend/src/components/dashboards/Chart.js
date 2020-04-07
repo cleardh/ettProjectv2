@@ -5,18 +5,18 @@ const Chart = ({ category, requestDays, org }) => {
   const data = category.isUnlimited
     ? [
         ['Label', 'Days'],
-        ['Remaining', 365]
+        ['Remaining', 365],
       ]
     : org
     ? [
         ['Label', 'Days'],
         ['Used', requestDays],
-        ['Remaining', category.limit * org.members.length - requestDays]
+        ['Remaining', category.limit * org.members.length - requestDays],
       ]
     : [
         ['Label', 'Days'],
         ['Used', requestDays],
-        ['Remaining', category.limit - requestDays]
+        ['Remaining', category.limit - requestDays],
       ];
   const options = {
     title: category.title,
@@ -25,7 +25,7 @@ const Chart = ({ category, requestDays, org }) => {
     legend: { position: 'none' },
     colors: category.isUnlimited
       ? [category.color]
-      : ['#8e8c84', category.color]
+      : ['#8e8c84', category.color],
   };
   return (
     <Fragment>

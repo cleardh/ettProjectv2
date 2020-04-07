@@ -14,7 +14,7 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
 
   const [title, setTitle] = useState('');
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
     const formData = { title };
     addLevel(formData);
@@ -28,12 +28,12 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
         <div className='wrapper'>
           <AdminSidebar current={'level'} />
           <div className='admin-wrapper'>
-            <form className='admin-form' onSubmit={e => onSubmit(e)}>
+            <form className='admin-form' onSubmit={(e) => onSubmit(e)}>
               <fieldset>
                 <legend>Manage Level</legend>
                 <table className='table table-hover'>
                   <tbody>
-                    {level.levels.map(l => (
+                    {level.levels.map((l) => (
                       <Fragment key={l._id}>
                         <tr>
                           <td>
@@ -44,7 +44,7 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
                               className='btn btn-outline-secondary btn-admin'
                               type='button'
                               name='delete'
-                              onClick={e => deleteLevel(l._id)}
+                              onClick={(e) => deleteLevel(l._id)}
                             >
                               <i className='far fa-trash-alt'></i>
                             </button>
@@ -64,7 +64,7 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
                     id='title'
                     placeholder='Enter title'
                     value={title}
-                    onChange={e => setTitle(e.target.value)}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
                 </div>
               </fieldset>
@@ -85,15 +85,15 @@ ManageLevel.propTypes = {
   level: PropTypes.object,
   getAllLevels: PropTypes.func.isRequired,
   addLevel: PropTypes.func.isRequired,
-  deleteLevel: PropTypes.func.isRequired
+  deleteLevel: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  level: state.level
+const mapStateToProps = (state) => ({
+  level: state.level,
 });
 
 export default connect(mapStateToProps, {
   getAllLevels,
   addLevel,
-  deleteLevel
+  deleteLevel,
 })(ManageLevel);

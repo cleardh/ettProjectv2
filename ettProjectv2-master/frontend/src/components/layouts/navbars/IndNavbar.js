@@ -12,7 +12,10 @@ const IndNavbar = ({ isAbout, user, logout }) => {
   const { display } = dropdown;
 
   return (
-    <nav className='navbar navbar-expand-lg navbar-dark bg-primary'>
+    <nav
+      className='navbar navbar-expand-lg navbar-dark bg-primary'
+      style={{ top: '0px', position: 'sticky', zIndex: '2' }}
+    >
       <Link to='/dashboard/individual' className='brand-link'>
         <img
           src={logo}

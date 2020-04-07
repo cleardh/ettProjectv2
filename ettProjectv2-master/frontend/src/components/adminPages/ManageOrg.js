@@ -8,7 +8,7 @@ import {
   getOrganizationByTitle,
   addOrganization,
   deleteOrganization,
-  updateOrganization
+  updateOrganization,
 } from '../../actions/organization';
 import { getAllLevels, getLevelByTitle } from '../../actions/level';
 import { getEmployeeByEmail } from '../../actions/employee';
@@ -25,7 +25,7 @@ const ManageOrg = ({
   updateOrganization,
   getAllLevels,
   getLevelByTitle,
-  getEmployeeByEmail
+  getEmployeeByEmail,
 }) => {
   localStorage.setItem('component', 'ManageOrg');
   useEffect(() => {
@@ -43,16 +43,16 @@ const ManageOrg = ({
   const [org, setOrg] = useState({
     _title: '',
     _level: '',
-    _head: ''
+    _head: '',
   });
   const { _title, _level, _head } = org;
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
     const formData = {
       title: _title,
       level: level.level,
-      head: employee.employee
+      head: employee.employee,
     };
     btnText === 'Save'
       ? addOrganization(formData)
@@ -75,7 +75,7 @@ const ManageOrg = ({
           : '',
         _head: organization.organization
           ? organization.organization.head.email
-          : ''
+          : '',
       });
     }
   }, [btnText, organization.organization]);
@@ -85,12 +85,12 @@ const ManageOrg = ({
     setBtnText('Update');
   };
 
-  const cancel = e => {
+  const cancel = (e) => {
     setBtnText('Save');
     setOrg({
       _title: '',
       _level: '',
-      _head: ''
+      _head: '',
     });
   };
 
@@ -103,7 +103,7 @@ const ManageOrg = ({
           <div className='admin-wrapper'>
             <form
               className='admin-form'
-              onSubmit={e => {
+              onSubmit={(e) => {
                 onSubmit(e);
               }}
             >
@@ -111,16 +111,16 @@ const ManageOrg = ({
                 <legend>Manage Organization</legend>
                 <table className='table table-hover'>
                   <tbody>
-                    {organization.organizations.map(o => (
+                    {organization.organizations.map((o) => (
                       <Fragment key={o._id}>
                         <tr>
-                          <td
-                            className='org-title-link'
-                            onClick={e => loadOrg(e, o.title)}
+                          <th
+                            className='org-link'
+                            onClick={(e) => loadOrg(e, o.title)}
                           >
                             <em>{o.title}</em>
-                          </td>
-                          <td>
+                          </th>
+                          <td className='fw-500'>
                             <em>{o.level.title}</em>
                           </td>
                           <td align='right'>
@@ -128,7 +128,7 @@ const ManageOrg = ({
                               className='btn btn-outline-secondary btn-admin'
                               type='button'
                               name='delete'
-                              onClick={e => deleteOrganization(o._id)}
+                              onClick={(e) => deleteOrganization(o._id)}
                             >
                               <i className='far fa-trash-alt'></i>
                             </button>
@@ -148,7 +148,7 @@ const ManageOrg = ({
                     id='title'
                     placeholder='Enter title'
                     value={_title}
-                    onChange={e =>
+                    onChange={(e) =>
                       setOrg({ ...org, [e.target.name]: e.target.value })
                     }
                   />
@@ -160,13 +160,13 @@ const ManageOrg = ({
                     id='level'
                     name='_level'
                     value={_level}
-                    onChange={e => {
+                    onChange={(e) => {
                       setOrg({ ...org, [e.target.name]: e.target.value });
                       getLevelByTitle(e.target.value);
                     }}
                   >
                     {level.levels.length > 0 &&
-                      level.levels.map(l => (
+                      level.levels.map((l) => (
                         <option key={l._id} value={l.title}>
                           {l.title}
                         </option>
@@ -181,11 +181,11 @@ const ManageOrg = ({
                     id='head'
                     name='_head'
                     value={_head}
-                    onChange={e =>
+                    onChange={(e) =>
                       setOrg({ ...org, [e.target.name]: e.target.value })
                     }
                     placeholder='Enter email'
-                    onBlur={e =>
+                    onBlur={(e) =>
                       e.target.value !== '' &&
                       getEmployeeByEmail(e.target.value)
                     }
@@ -198,7 +198,7 @@ const ManageOrg = ({
               <button
                 type='button'
                 className='btn btn-danger block'
-                onClick={e => cancel(e)}
+                onClick={(e) => cancel(e)}
               >
                 Cancel
               </button>
@@ -223,13 +223,13 @@ ManageOrg.propTypes = {
   updateOrganization: PropTypes.func.isRequired,
   getAllLevels: PropTypes.func.isRequired,
   getLevelByTitle: PropTypes.func.isRequired,
-  getEmployeeByEmail: PropTypes.func.isRequired
+  getEmployeeByEmail: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   level: state.level,
   organization: state.organization,
-  employee: state.employee
+  employee: state.employee,
 });
 
 export default connect(mapStateToProps, {
@@ -240,5 +240,5 @@ export default connect(mapStateToProps, {
   updateOrganization,
   getAllLevels,
   getLevelByTitle,
-  getEmployeeByEmail
+  getEmployeeByEmail,
 })(ManageOrg);

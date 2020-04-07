@@ -1,6 +1,7 @@
-import React from 'react';
-import moment from 'moment';
+import React, { Fragment } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment-timezone';
+import ReactTooltip from 'react-tooltip';
 import '../../assets/css/calendar.css';
 
 export default class Calendar extends React.Component {
@@ -10,10 +11,11 @@ export default class Calendar extends React.Component {
     showYearTable: false,
     showMonthTable: false,
     showDateTable: true,
-    dateObject: moment(),
-    allmonths: moment.months(),
+    dateObject: moment().tz('America/Toronto'),
+    allmonths: moment.tz('America/Toronto').months(),
     selectedDay: null,
-    today: moment()
+    today: moment().tz('America/Toronto'),
+    tooltip: 'none',
   };
   daysInMonth = () => {
     return this.state.dateObject.daysInMonth();
@@ -28,6 +30,7 @@ export default class Calendar extends React.Component {
   firstDayOfMonth = () => {
     let dateObject = this.state.dateObject;
     let firstDay = moment(dateObject)
+      .tz('America/Toronto')
       .startOf('month')
       .format('d'); // Day of week 0...1..5...6
     return firstDay;
@@ -38,27 +41,27 @@ export default class Calendar extends React.Component {
   showMonth = (e, month) => {
     this.setState({
       showMonthTable: !this.state.showMonthTable,
-      showDateTable: !this.state.showDateTable
+      showDateTable: !this.state.showDateTable,
     });
   };
-  setMonth = month => {
+  setMonth = (month) => {
     let monthNo = this.state.allmonths.indexOf(month);
     let dateObject = Object.assign({}, this.state.dateObject);
-    dateObject = moment(dateObject).set('month', monthNo);
+    dateObject = moment(dateObject).tz('America/Toronto').set('month', monthNo);
     this.setState({
       dateObject: dateObject,
       showMonthTable: !this.state.showMonthTable,
-      showDateTable: !this.state.showDateTable
+      showDateTable: !this.state.showDateTable,
     });
   };
-  MonthList = props => {
+  MonthList = (props) => {
     let months = [];
-    props.data.map(data =>
+    props.data.map((data) =>
       months.push(
         <td
           key={`${this.year()}${data}`}
           className='calendar-month'
-          onClick={e => {
+          onClick={(e) => {
             this.setMonth(data);
           }}
         >
@@ -94,10 +97,10 @@ export default class Calendar extends React.Component {
       </table>
     );
   };
-  showYearTable = e => {
+  showYearTable = (e) => {
     this.setState({
       showYearTable: !this.state.showYearTable,
-      showDateTable: !this.state.showDateTable
+      showDateTable: !this.state.showDateTable,
     });
   };
 
@@ -109,7 +112,7 @@ export default class Calendar extends React.Component {
       curr = 'month';
     }
     this.setState({
-      dateObject: this.state.dateObject.subtract(1, curr)
+      dateObject: this.state.dateObject.subtract(1, curr),
     });
   };
   onNext = () => {
@@ -120,46 +123,47 @@ export default class Calendar extends React.Component {
       curr = 'month';
     }
     this.setState({
-      dateObject: this.state.dateObject.add(1, curr)
+      dateObject: this.state.dateObject.add(1, curr),
     });
   };
-  setYear = year => {
+  setYear = (year) => {
     let dateObject = Object.assign({}, this.state.dateObject);
-    dateObject = moment(dateObject).set('year', year);
+    dateObject = moment(dateObject).tz('America/Toronto').set('year', year);
     this.setState({
       dateObject: dateObject,
       showMonthTable: !this.state.showMonthTable,
-      showYearTable: !this.state.showYearTable
+      showYearTable: !this.state.showYearTable,
     });
   };
-  onYearChange = e => {
+  onYearChange = (e) => {
     this.setYear(e.target.value);
   };
   getDates(startDate, stopDate) {
     var dateArray = [];
-    var currentDate = moment(startDate);
-    var _stopDate = moment(stopDate);
+    var currentDate = moment(startDate).tz('America/Toronto');
+    var _stopDate = moment(stopDate).tz('America/Toronto');
     while (currentDate <= _stopDate) {
-      dateArray.push(moment(currentDate).format('YYYY'));
-      currentDate = moment(currentDate).add(1, 'year');
+      dateArray.push(moment(currentDate).tz('America/Toronto').format('YYYY'));
+      currentDate = moment(currentDate).tz('America/Toronto').add(1, 'year');
     }
     return dateArray;
   }
-  YearTable = props => {
+  YearTable = (props) => {
     let months = [];
     let nextten = moment()
+      .tz('America/Toronto')
       .set('year', props)
       .add(12, 'year')
       .format('Y');
 
     let tenyear = this.getDates(props, nextten);
 
-    tenyear.map(data =>
+    tenyear.map((data) =>
       months.push(
         <td
           key={data}
           className='calendar-month'
-          onClick={e => {
+          onClick={(e) => {
             this.setYear(data);
           }}
         >
@@ -182,7 +186,7 @@ export default class Calendar extends React.Component {
     rows.push(cells);
     let yearlist = rows.map((d, i) => {
       let yearKey = '';
-      d.forEach(y => {
+      d.forEach((y) => {
         yearKey = y.key;
       });
       return <tr key={yearKey}>{d}</tr>;
@@ -205,42 +209,41 @@ export default class Calendar extends React.Component {
         selectedDay: {
           year: this.year(),
           month: this.state.dateObject.format('MM'),
-          date: d
-        }
+          date: d,
+        },
       },
       () => {
-        console.log(
-          'SELECTED DAY: ',
-          moment(
-            `${this.state.selectedDay.year}-${this.state.selectedDay.month}-${d}`
-          ).format('YYYY-MM-DD')
-        );
         const data = moment(
           `${this.state.selectedDay.year}-${this.state.selectedDay.month}-${d}`
-        ).format('YYYY-MM-DD');
+        )
+          .tz('America/Toronto')
+          .format('YYYY-MM-DD');
         this.props.data(data);
 
-        const eventList = this.props.events.filter(
-          e =>
-            moment(e.date)
-              .add(1, 'days')
-              .format('Y') === this.year() &&
-            moment(e.date)
-              .add(1, 'days')
-              .format('MMMM') === this.month()
-        );
+        console.log('SELECTED DAY: ', data);
 
-        eventList.map(
-          e =>
-            moment(e.date)
-              .add(1, 'days')
-              .date() === d && this.props.selectedEvent(e)
-        );
+        // const eventList = this.props.events.filter(
+        //   (e) =>
+        //     (moment(e.dateS).tz('America/Toronto').format('Y') ===
+        //       this.year() &&
+        //       moment(e.dateS).tz('America/Toronto').format('MMMM') ===
+        //         this.month()) ||
+        //     (moment(e.dateE).tz('America/Toronto').format('Y') ===
+        //       this.year() &&
+        //       moment(e.dateE).tz('America/Toronto').format('MMMM') ===
+        //         this.month())
+        // );
+        // eventList.map(
+        //   (e) =>
+        //     moment(e.dateS).tz('America/Toronto').date() <= d &&
+        //     moment(e.dateE).tz('America/Toronto').date() >= d &&
+        //     this.props.selectedEvent(e)
+        // );
       }
     );
   };
   render() {
-    let weekdayshortname = this.weekdayshort.map(day => {
+    let weekdayshortname = this.weekdayshort.map((day) => {
       return <th key={`${this.year()}${this.month()}${day}`}>{day}</th>;
     });
     let blanks = [];
@@ -260,64 +263,115 @@ export default class Calendar extends React.Component {
           ? 'today'
           : '';
       const eventList = this.props.events.filter(
-        e =>
-          moment(e.date)
-            .add(1, 'days')
-            .format('Y') === this.year() &&
-          moment(e.date)
-            .add(1, 'days')
-            .format('MMMM') === this.month()
+        (e) =>
+          (moment(e.dateS).tz('America/Toronto').format('Y') === this.year() &&
+            moment(e.dateS).tz('America/Toronto').format('MMMM') ===
+              this.month()) ||
+          (moment(e.dateE).tz('America/Toronto').format('Y') === this.year() &&
+            moment(e.dateE).tz('America/Toronto').format('MMMM') ===
+              this.month())
       );
       const style = eventList.map(
-        e =>
-          moment(e.date)
-            .add(1, 'days')
-            .date() === d &&
+        (e) =>
+          moment(e.dateS).tz('America/Toronto').format('YYYY-MM-DD') <=
+            moment(`${this.year()}-${this.month()}-${d}`)
+              .tz('America/Toronto')
+              .format('YYYY-MM-DD') &&
+          moment(e.dateE).tz('America/Toronto').format('YYYY-MM-DD') >=
+            moment(`${this.year()}-${this.month()}-${d}`)
+              .tz('America/Toronto')
+              .format('YYYY-MM-DD') &&
           (e.isConfirmed
             ? {
-                background: `${e.category.color}`
+                background: `${e.category.color}`,
               }
             : {
-                color: `${e.category.color}`,
-                textDecoration: 'underline',
-                fontWeight: '600'
+                borderColor: `${e.category.color}`,
               })
       );
 
+      const findEventsOnSelectedDay = (date) => {
+        const events = this.props.events.filter(
+          (e) =>
+            moment(e.dateS).tz('America/Toronto').format('YYYY-MM-DD') <=
+              moment(`${this.year()}-${this.month()}-${d}`)
+                .tz('America/Toronto')
+                .format('YYYY-MM-DD') &&
+            moment(e.dateE).tz('America/Toronto').format('YYYY-MM-DD') >=
+              moment(`${this.year()}-${this.month()}-${d}`)
+                .tz('America/Toronto')
+                .format('YYYY-MM-DD')
+        );
+        return events;
+      };
+
       let styles = {
         background: '',
-        borderRadius: 40,
-        WebkitBorderRadius: 40
+        borderColor: 'transparent',
       };
-      style.map(s => {
+      style.map((s) => {
         if (s.background) {
           styles = {
             ...styles,
-            background: s.background
+            background: s.background,
           };
         }
-        if (s.color && s.textDecoration && s.fontWeight) {
+        if (s.borderColor) {
           styles = {
             ...styles,
-            color: s.color,
-            textDecoration: s.textDecoration,
-            fontWeight: s.fontWeight
+            borderColor: s.borderColor,
           };
         }
         return styles;
       });
 
       daysInMonth.push(
-        <td
-          key={d}
-          className={`calendar-day ${currentDay}`}
-          style={styles}
-          onClick={e => {
-            this.onDayClick(e, d);
-          }}
-        >
-          {d}
-        </td>
+        <Fragment key={d}>
+          <td
+            className='calendar-day'
+            onClick={(e) => {
+              this.onDayClick(e, d);
+            }}
+          >
+            <div className='date' data-tip data-for={`tooltip${d}`}>
+              {d}
+            </div>
+            <div
+              className={`overlay-circle ${currentDay}`}
+              style={styles}
+            ></div>
+
+            {findEventsOnSelectedDay(d).length > 0 && (
+              <ReactTooltip
+                id={`tooltip${d}`}
+                effect='solid'
+                place='top'
+                aria-haspopup='true'
+              >
+                {findEventsOnSelectedDay(d).map((e) => (
+                  <Fragment key={e._id}>
+                    <div className='lh-sm'>
+                      Start:{' '}
+                      {moment(e.dateS)
+                        .tz('America/Toronto')
+                        .format('YYYY-MM-DD HH:mm')}
+                    </div>
+                    <div className='lh-sm'>
+                      End:{' '}
+                      {moment(e.dateE)
+                        .tz('America/Toronto')
+                        .format('YYYY-MM-DD HH:mm')}
+                    </div>
+                    <div className='lh-sm'>Category: {e.category.title}</div>
+                    <div className='lh-sm'>
+                      {e.isConfirmed ? 'Confirmed' : 'Pending'}
+                    </div>
+                  </Fragment>
+                ))}
+              </ReactTooltip>
+            )}
+          </td>
+        </Fragment>
       );
     }
     var totalSlots = [...blanks, ...daysInMonth];
@@ -337,22 +391,31 @@ export default class Calendar extends React.Component {
       }
     });
 
-    let daysinmonth = rows.map(d => {
-      return <tr key={uuidv4()}>{d}</tr>;
+    let daysinmonth = rows.map((d) => {
+      const key = uuidv4();
+      if (d.length > 0) {
+        return (
+          <tr key={key} className='date-row'>
+            {d}
+          </tr>
+        );
+      } else {
+        return <tr key={key}></tr>;
+      }
     });
 
     return (
       <div className='tail-datetime-calendar'>
         <div className='calendar-navi'>
-          {/* <span
-            onClick={e => {
+          <span
+            onClick={(e) => {
               this.onPrev();
             }}
             className='calendar-button button-prev'
-          /> */}
+          />
           {!this.state.showMonthTable && (
             <span
-              onClick={e => {
+              onClick={(e) => {
                 this.showMonth();
               }}
               className='calendar-label'
@@ -360,15 +423,18 @@ export default class Calendar extends React.Component {
               {this.month()}
             </span>
           )}
-          <span className='calendar-label' onClick={e => this.showYearTable()}>
+          <span
+            className='calendar-label'
+            onClick={(e) => this.showYearTable()}
+          >
             {this.year()}
           </span>
-          {/* <span
-            onClick={e => {
+          <span
+            onClick={(e) => {
               this.onNext();
             }}
             className='calendar-button button-next'
-          /> */}
+          />
         </div>
 
         <div className='calendar-date'>

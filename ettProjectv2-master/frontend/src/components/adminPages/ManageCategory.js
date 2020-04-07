@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { CirclePicker } from 'react-color';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import Loading from '../layouts/Loading';
@@ -9,7 +10,7 @@ import {
   deleteCategory,
   updateCategory,
   getAllCategories,
-  getCategoryByTitle
+  getCategoryByTitle,
 } from '../../actions/category';
 
 const ManageCategory = ({
@@ -18,7 +19,7 @@ const ManageCategory = ({
   deleteCategory,
   updateCategory,
   getAllCategories,
-  getCategoryByTitle
+  getCategoryByTitle,
 }) => {
   localStorage.setItem('component', 'ManageCategory');
   useEffect(() => {
@@ -29,19 +30,40 @@ const ManageCategory = ({
     title: '',
     limit: '',
     isUnlimited: false,
-    color: ''
+    color: '',
   });
 
   const { title, limit, isUnlimited, color } = newCategory;
 
-  const onChange = e => {
+  const onChange = (e) => {
     setNewCategory({
       ...newCategory,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const [btn, setBtn] = useState('add');
+
+  const [colorPickerDisplay, setColorPickerDisplay] = useState('none');
+
+  const [circlePickerValue, setCirclePickerValue] = useState('');
+
+  const setColorAndClose = (e) => {
+    setNewCategory({
+      ...newCategory,
+      color: circlePickerValue,
+    });
+    setColorPickerDisplay('none');
+  };
+
+  const cancelColorPicker = (e) => {
+    setCirclePickerValue('');
+    setColorPickerDisplay('none');
+    setNewCategory({
+      ...newCategory,
+      color: '',
+    });
+  };
 
   const loadCategory = (e, title) => {
     getCategoryByTitle(title);
@@ -54,12 +76,12 @@ const ManageCategory = ({
         title: category.category ? category.category.title : '',
         limit: category.category ? category.category.limit : '',
         isUnlimited: category.category ? category.category.isUnlimited : '',
-        color: category.category ? category.category.color : ''
+        color: category.category ? category.category.color : '',
       });
     }
   }, [btn, category.category]);
 
-  const addOrEdit = e => {
+  const addOrEdit = (e) => {
     btn === 'add'
       ? addCategory(newCategory)
       : updateCategory(category.category._id, newCategory);
@@ -69,18 +91,21 @@ const ManageCategory = ({
       title: '',
       limit: '',
       isUnlimited: false,
-      color: ''
+      color: '',
     });
+    setCirclePickerValue('');
+    setColorPickerDisplay('none');
   };
 
-  const cancel = e => {
+  const cancel = (e) => {
     setBtn('add');
     setNewCategory({
       title: '',
       limit: '',
       isUnlimited: false,
-      color: ''
+      color: '',
     });
+    setCirclePickerValue('');
   };
 
   return (
@@ -104,13 +129,13 @@ const ManageCategory = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {category.categories.map(c => (
+                    {category.categories.map((c) => (
                       <Fragment key={c._id}>
                         <tr>
                           <th
                             scope='row'
-                            className='org-title-link'
-                            onClick={e => loadCategory(e, c.title)}
+                            className='org-link'
+                            onClick={(e) => loadCategory(e, c.title)}
                           >
                             {c.title}
                           </th>
@@ -135,19 +160,17 @@ const ManageCategory = ({
                             </div>
                           </td>
                           <td align='center'>
-                            <span
-                              className='badge badge-pill color-code'
+                            <div
+                              className='color-code'
                               style={{ background: c.color }}
-                            >
-                              {'  '}
-                            </span>
+                            ></div>
                           </td>
                           <td>
                             <button
                               className='btn btn-outline-secondary btn-admin'
                               type='button'
                               name='employee'
-                              onClick={e => deleteCategory(c._id)}
+                              onClick={(e) => deleteCategory(c._id)}
                             >
                               <i className='far fa-trash-alt'></i>
                             </button>
@@ -161,11 +184,11 @@ const ManageCategory = ({
                           <input
                             type='text'
                             className='form-control category-input'
-                            style={{ width: '6em' }}
+                            style={{ width: '8em' }}
                             placeholder='Category Title'
                             name='title'
                             value={title}
-                            onChange={e => onChange(e)}
+                            onChange={(e) => onChange(e)}
                           />
                         </div>
                       </td>
@@ -176,8 +199,9 @@ const ManageCategory = ({
                             min='1'
                             className='form-control add-max category-input'
                             name='limit'
+                            placeholder='Max'
                             value={limit}
-                            onChange={e => onChange(e)}
+                            onChange={(e) => onChange(e)}
                             disabled={isUnlimited}
                           />
                         </div>
@@ -190,11 +214,11 @@ const ManageCategory = ({
                             id='toggle'
                             name='isUnlimited'
                             checked={isUnlimited ? true : false}
-                            onChange={e => {
+                            onChange={(e) => {
                               setNewCategory({
                                 ...newCategory,
                                 isUnlimited: !isUnlimited,
-                                limit: isUnlimited && ''
+                                limit: isUnlimited && '',
                               });
                             }}
                           />
@@ -207,13 +231,90 @@ const ManageCategory = ({
                       <td align='center'>
                         <div className='form-group'>
                           <input
-                            type='text'
+                            type='hidden'
                             className='form-control category-input'
-                            placeholder='#'
                             name='color'
                             value={color}
-                            onChange={e => onChange(e)}
                           />
+                          <div
+                            className='color-code color-input'
+                            style={{ background: color }}
+                            onClick={(e) => setColorPickerDisplay('')}
+                          ></div>
+                          <div style={{ display: colorPickerDisplay }}>
+                            <div
+                              className='modal'
+                              style={{
+                                position: 'absolute',
+                                display: 'block',
+                                top: '40%',
+                              }}
+                            >
+                              <div className='modal-dialog' role='document'>
+                                <div className='modal-content'>
+                                  <div className='modal-header'>
+                                    <h5 className='modal-title'>
+                                      Select Color
+                                    </h5>
+                                    <div
+                                      className='current-color'
+                                      style={{
+                                        borderColor:
+                                          !circlePickerValue && 'transparent',
+                                      }}
+                                    >
+                                      {circlePickerValue}
+                                    </div>
+                                    <button
+                                      type='button'
+                                      className='close'
+                                      data-dismiss='modal'
+                                      aria-label='Close'
+                                      onClick={(e) =>
+                                        setColorPickerDisplay('none')
+                                      }
+                                    >
+                                      <span aria-hidden='true'>&times;</span>
+                                    </button>
+                                  </div>
+                                  <div className='modal-body'>
+                                    <CirclePicker
+                                      width='450px'
+                                      colors={[
+                                        '#f44336',
+                                        '#e91e63',
+                                        '#9c27b0',
+                                        '#673ab7',
+                                        '#3f51b5',
+                                        '#2196f3',
+                                        '#03a9f4',
+                                      ]}
+                                      onChangeComplete={(c, e) =>
+                                        setCirclePickerValue(c.hex)
+                                      }
+                                    />
+                                  </div>
+                                  <div className='modal-footer'>
+                                    <button
+                                      type='button'
+                                      className='btn btn-primary'
+                                      onClick={(e) => setColorAndClose(e)}
+                                    >
+                                      Save changes
+                                    </button>
+                                    <button
+                                      type='button'
+                                      className='btn btn-secondary'
+                                      data-dismiss='modal'
+                                      onClick={(e) => cancelColorPicker(e)}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -222,7 +323,7 @@ const ManageCategory = ({
                           type='button'
                           name='new_role'
                           disabled={(!title || !color) && true}
-                          onClick={e => addOrEdit(e)}
+                          onClick={(e) => addOrEdit(e)}
                         >
                           {btn === 'add' ? (
                             <i className='fas fa-plus'></i>
@@ -237,7 +338,7 @@ const ManageCategory = ({
                 <button
                   type='button'
                   className='btn btn-danger block'
-                  onClick={e => cancel(e)}
+                  onClick={(e) => cancel(e)}
                 >
                   Cancel
                 </button>
@@ -258,11 +359,11 @@ ManageCategory.propTypes = {
   deleteCategory: PropTypes.func.isRequired,
   updateCategory: PropTypes.func.isRequired,
   getAllCategories: PropTypes.func.isRequired,
-  getCategoryByTitle: PropTypes.func.isRequired
+  getCategoryByTitle: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  category: state.category
+const mapStateToProps = (state) => ({
+  category: state.category,
 });
 
 export default connect(mapStateToProps, {
@@ -270,5 +371,5 @@ export default connect(mapStateToProps, {
   deleteCategory,
   updateCategory,
   getAllCategories,
-  getCategoryByTitle
+  getCategoryByTitle,
 })(ManageCategory);

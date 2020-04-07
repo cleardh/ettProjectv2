@@ -1,16 +1,18 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
+import moment from 'moment-timezone';
+import ReactTooltip from 'react-tooltip';
 import PropTypes from 'prop-types';
 import Loading from '../layouts/Loading';
 import IndNavbar from '../layouts/navbars/IndNavbar';
 import Calendar from './Calendar';
 import Chart from './Chart';
+import TimePicker from './ModalTimePicker';
 import { getAllCategories, getCategoryByTitle } from '../../actions/category';
 import {
   addRequest,
   deleteRequest,
-  getRequestsByEmployee
+  getRequestsByEmployee,
 } from '../../actions/request';
 import { getEmployeeByEmail } from '../../actions/employee';
 import { setAlert } from '../../actions/alert';
@@ -27,27 +29,18 @@ const IndDashboard = ({
   deleteRequest,
   getRequestsByEmployee,
   getEmployeeByEmail,
-  setAlert
+  setAlert,
 }) => {
   localStorage.removeItem('component');
+
+  useEffect(() => {
+    getAllCategories();
+  }, [getAllCategories]);
 
   let email = null;
   if (history.location.state) {
     email = history.location.state.email;
   }
-
-  const [formData, setFormData] = useState({
-    _email: email ? email : '',
-    _date: '',
-    _category: ''
-  });
-  const { _email, _date, _category } = formData;
-
-  const [selectedEvent, setSelectedEvent] = useState(null);
-
-  useEffect(() => {
-    getAllCategories();
-  }, [getAllCategories]);
 
   useEffect(() => {
     getEmployeeByEmail(email ? email : user && user.email);
@@ -59,47 +52,50 @@ const IndDashboard = ({
     }
   }, [getRequestsByEmployee, employee.employee, request.requests.length]);
 
+  const [formData, setFormData] = useState({
+    _email: email ? email : '',
+    _dateS: '',
+    _dateE: '',
+    _category: '',
+  });
+  const { _email, _dateS, _dateE, _category } = formData;
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [opacity, setOpacity] = useState(1);
+  const [dateValidity, setDateValidity] = useState(true);
+  const [isSet, setIsSet] = useState(false);
+
+  // Select date validation
+  useEffect(() => {
+    if (_dateS && _dateE && isSet) {
+      if (
+        moment(_dateS).tz('America/Toronto') >
+        moment(_dateE).tz('America/Toronto')
+      ) {
+        setAlert('Start date must be before end date', 'danger');
+        setDateValidity(false);
+        setFormData({ ...formData, _dateS: '', _dateE: '' });
+      } else if (
+        moment(_dateS).tz('America/Toronto').format('YYYY-MM-DD') <
+        moment().tz('America/Toronto').format('YYYY-MM-DD')
+      ) {
+        setAlert('Requested date is in the past', 'danger');
+        setFormData({ ...formData, _dateS: '', _dateE: '' });
+      } else {
+        setDateValidity(true);
+      }
+    }
+  }, [_dateS, _dateE, formData, isSet, selectedEvent, setAlert, dateValidity]);
+
   useEffect(() => {
     if (_category) {
       getCategoryByTitle(_category);
     }
   }, [getCategoryByTitle, _category]);
 
-  const getConfirmedRequestsByCategory = categoryId => {
-    if (category.categories.length > 0 && request.requests.length > 0) {
-      const c = category.categories.find(c => c._id === categoryId);
-      const requestDays = request.requests.filter(
-        r =>
-          r.category._id === c._id &&
-          r.isConfirmed &&
-          moment(r.date).year() === year
-      );
-      return requestDays.length;
-    }
-    return 0;
-  };
-
-  const deleteEvent = event => {
-    if (moment(_date).format('YYYY-MM-DD') < moment().format('YYYY-MM-DD')) {
-      setAlert('Old requests cannot be revoked', 'danger');
-    } else {
-      deleteRequest(event);
-    }
-    setFormData({
-      _email: '',
-      _date: '',
-      _category: ''
-    });
-  };
-
   const yearSelector = () => {
     let years = [];
     for (let i = 4; i >= 0; i--) {
-      years.push(
-        moment()
-          .subtract(i, 'years')
-          .year()
-      );
+      years.push(moment().subtract(i, 'years').year());
     }
     return years;
   };
@@ -108,59 +104,204 @@ const IndDashboard = ({
 
   const [cat, setCat] = useState({
     categoryTitle: 'Vacation',
-    categoryColor: '#f47c3c'
+    categoryColor: '#f47c3c',
   });
   const { categoryTitle, categoryColor } = cat;
 
-  const selectYear = y => {
+  const selectYear = (y) => {
     setYear(y);
     setYearShow(!yearShow);
   };
 
-  const selectCategory = c => {
+  const selectCategory = (c) => {
     setCat({
       categoryTitle: c.title,
-      categoryColor: c.color
+      categoryColor: c.color,
     });
     setCategoryShow(!categoryShow);
   };
 
-  const addRequestOrWarn = () => {
-    const userRequestsByCategoryThisYear = request.requests.filter(
-      r =>
-        r.category._id === category.category._id &&
-        r.user._id === employee.employee._id &&
-        moment(r.date).year() === moment().year()
-    ).length;
+  const totalRequestsByCategoryThisYear = (requests, categoryId) => {
+    const requestsByCategory = requests.filter(
+      (r) => r.category._id === categoryId
+    );
 
-    if (moment(_date).format('YYYY-MM-DD') < moment().format('YYYY-MM-DD')) {
-      setAlert('Requested date is in the past', 'danger');
-    } else if (
-      !category.category.isUnlimited &&
-      category.category.limit <= userRequestsByCategoryThisYear
+    let total = 0;
+
+    const startAndEndInSameYear = requestsByCategory.filter(
+      (r) =>
+        moment(r.dateS).year() === moment().year() &&
+        moment(r.dateE).year() === moment().year()
+    );
+
+    const startInLastYear = requestsByCategory.filter(
+      (r) =>
+        moment(r.dateS).year() !== moment().year() &&
+        moment(r.dateE).year() === moment().year()
+    );
+
+    const EndInNextYear = requestsByCategory.filter(
+      (r) =>
+        moment(r.dateS).year() === moment().year() &&
+        moment(r.dateE).year() !== moment().year()
+    );
+
+    startAndEndInSameYear.map((r) =>
+      moment(r.dateE).diff(moment(r.dateS), 'days') !== 0
+        ? (total += 1 + moment(r.dateE).diff(moment(r.dateS), 'days'))
+        : moment(r.dateE).diff(moment(r.dateS), 'hours') > 5
+        ? (total += 1)
+        : (total += 0.5)
+    );
+
+    startInLastYear.map(
+      (r) =>
+        (total += 1 + moment(r.dateE).diff(moment().startOf('year'), 'days'))
+    );
+
+    EndInNextYear.map(
+      (r) => (total += 1 + moment().endOf('year').diff(moment(r.dateS), 'days'))
+    );
+
+    return total;
+  };
+
+  const getConfirmedRequestsByCategory = (categoryId) => {
+    const confirmedRequests = request.requests.filter((r) => r.isConfirmed);
+    return totalRequestsByCategoryThisYear(confirmedRequests, categoryId);
+  };
+
+  const getRequestDaysAtStake = (startDate, endDate) => {
+    let total = 0;
+    const dateS = moment(startDate).tz('America/Toronto');
+    const dateE = moment(endDate).tz('America/Toronto');
+    if (
+      dateS.year() === moment().tz('America/Toronto').year() &&
+      dateE.year() === moment().tz('America/Toronto').year()
     ) {
-      setAlert('Request denied due to limit', 'danger');
+      dateE.diff(dateS, 'days') !== 0
+        ? (total += 1 + dateE.diff(dateS, 'days'))
+        : dateE.diff(dateS, 'hours') > 5
+        ? (total += 1 + dateE.diff(dateS, 'days'))
+        : (total += 0.5);
+    } else if (dateS.year() === moment().tz('America/Toronto').year()) {
+      total +=
+        1 + moment().tz('America/Toronto').endOf('year').diff(dateS, 'days');
+    } else if (dateE.year() === moment().tz('America/Toronto').year()) {
+      total +=
+        1 + dateE.diff(moment().tz('America/Toronto').startOf('year'), 'days');
+    }
+    return total;
+  };
+
+  const addRequestOrWarn = () => {
+    if (
+      !category.category.isUnlimited &&
+      category.category.limit <=
+        totalRequestsByCategoryThisYear(
+          request.requests,
+          category.category._id
+        ) +
+          getRequestDaysAtStake(_dateS, _dateE)
+    ) {
+      setAlert(
+        `Request denied due to limit (${totalRequestsByCategoryThisYear(
+          request.requests,
+          category.category._id
+        )} + ${getRequestDaysAtStake(_dateS, _dateE)}
+        )`,
+        'danger'
+      );
+    } else if (selectedEvent) {
+      if (
+        moment(_dateS).tz('America/Toronto') >=
+          moment(selectedEvent[0].dateS).tz('America/Toronto') ||
+        moment(_dateS).tz('America/Toronto') <=
+          moment(selectedEvent[0].dateE).tz('America/Toronto') ||
+        moment(_dateE).tz('America/Toronto') >=
+          moment(selectedEvent[0].dateS).tz('America/Toronto') ||
+        moment(_dateE).tz('America/Toronto') <=
+          moment(selectedEvent[0].dateE).tz('America/Toronto')
+      ) {
+        console.log(
+          moment(_dateS).tz('America/Toronto').format('YYYY-MM-DDTHH:mm'),
+          moment(_dateE).tz('America/Toronto').format('YYYY-MM-DDTHH:mm')
+        );
+        console.log(
+          moment(selectedEvent[0].dateS)
+            .tz('America/Toronto')
+            .format('YYYY-MM-DDTHH:mm'),
+          moment(selectedEvent[0].dateE)
+            .tz('America/Toronto')
+            .format('YYYY-MM-DDTHH:mm')
+        );
+        setAlert('Request overlapping', 'danger');
+      }
     } else {
       addRequest(
         {
           email: _email,
-          date: moment(_date).format('YYYY-MM-DD'),
-          category: category.category
+          dateS: moment(_dateS)
+            .tz('America/Toronto')
+            .format(moment.HTML5_FMT.DATETIME_LOCAL),
+          dateE: moment(_dateE)
+            .tz('America/Toronto')
+            .format(moment.HTML5_FMT.DATETIME_LOCAL),
+          category: category.category,
         },
         employee.employee.calendarId
       );
     }
 
+    setIsSet(false);
     setFormData({
       _email: '',
-      _date: '',
-      _category: ''
+      _dateS: '',
+      _dateE: '',
+      _category: '',
+    });
+  };
+  console.log(formData);
+
+  const deleteEvent = (event) => {
+    if (
+      moment(event.dateS).tz('America/Toronto').format('YYYY-MM-DD') <
+      moment().tz('America/Toronto').format('YYYY-MM-DD')
+    ) {
+      setAlert('Old requests cannot be revoked', 'danger');
+    } else {
+      deleteRequest(event);
+    }
+    setSelectedEvent(null);
+    setFormData({
+      _email: '',
+      _dateS: '',
+      _dateE: '',
+      _category: '',
     });
   };
 
   const [categoryShow, setCategoryShow] = useState(false);
-
   const [yearShow, setYearShow] = useState(false);
+  const [eventList, setEventList] = useState(false);
+
+  useEffect(() => {
+    if (_dateS && request.requests) {
+      const date = moment(_dateS).tz('America/Toronto').format('YYYY-MM-DD');
+      const events = request.requests.filter(
+        (r) =>
+          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') <= date &&
+          date <= moment(r.dateE).tz('America/Toronto').format('YYYY-MM-DD')
+      );
+      console.log(events);
+
+      if (events.length > 0) {
+        setSelectedEvent(events);
+      } else {
+        setSelectedEvent(null);
+      }
+    }
+  }, [request.requests, _dateS]);
 
   if (!employee.employee) {
     return <Loading />;
@@ -210,9 +351,9 @@ const IndDashboard = ({
                   aria-expanded='false'
                   style={{
                     background: `${categoryColor}`,
-                    borderColor: `${categoryColor}`
+                    borderColor: `${categoryColor}`,
                   }}
-                  onClick={e => setCategoryShow(!categoryShow)}
+                  onClick={(e) => setCategoryShow(!categoryShow)}
                 >
                   {categoryTitle}
                 </button>
@@ -221,16 +362,16 @@ const IndDashboard = ({
                   style={{ display: categoryShow ? '' : 'none' }}
                 >
                   {category.categories.length > 0 &&
-                    category.categories.map(c => (
+                    category.categories.map((c) => (
                       <button
                         key={c._id}
                         className='btn btn-secondary category-item'
                         type='button'
                         style={{
                           background: `${c.color}`,
-                          borderColor: `${c.color}`
+                          borderColor: `${c.color}`,
                         }}
-                        onClick={e => selectCategory(c)}
+                        onClick={(e) => selectCategory(c)}
                       >
                         {c.title}
                       </button>
@@ -244,7 +385,7 @@ const IndDashboard = ({
                   data-toggle='dropdown'
                   aria-haspopup='true'
                   aria-expanded='false'
-                  onClick={e => setYearShow(!yearShow)}
+                  onClick={(e) => setYearShow(!yearShow)}
                 >
                   {year}
                 </button>
@@ -252,12 +393,12 @@ const IndDashboard = ({
                   className='year-dropdown-menu dropdown-menu-right'
                   style={{ display: yearShow ? '' : 'none' }}
                 >
-                  {yearSelector().map(y => (
+                  {yearSelector().map((y) => (
                     <button
                       key={y}
                       type='button'
                       className='btn btn-secondary years'
-                      onClick={e => selectYear(y)}
+                      onClick={(e) => selectYear(y)}
                     >
                       {y}
                     </button>
@@ -291,13 +432,75 @@ const IndDashboard = ({
               <tbody>
                 <tr>
                   <td>
-                    <Calendar
-                      data={data => setFormData({ ...formData, _date: data })}
-                      events={request.requests}
-                      selectedEvent={e => {
-                        setSelectedEvent(e);
+                    <TimePicker
+                      startDate={
+                        _dateS
+                          ? moment(_dateS)
+                              .tz('America/Toronto')
+                              .format('YYYY-MM-DD')
+                          : ''
+                      }
+                      endDate={
+                        _dateE
+                          ? moment(_dateE)
+                              .tz('America/Toronto')
+                              .format('YYYY-MM-DD')
+                          : ''
+                      }
+                      isValid={dateValidity}
+                      toggleShow={_dateS && _dateE ? true : false}
+                      onOpen={(isOpen) => setOpacity(isOpen ? 0.5 : 1)}
+                      onClose={(isClosed) => setOpacity(isClosed && 1)}
+                      onCancel={(isCancelled) =>
+                        isCancelled &&
+                        setFormData({
+                          ...formData,
+                          _dateS: '',
+                          _dateE: '',
+                        })
+                      }
+                      startTimeSet={(time) => {
+                        time &&
+                          setFormData({
+                            ...formData,
+                            _dateS: moment(_dateS + ' ' + time)
+                              .tz('America/Toronto')
+                              .format(moment.HTML5_FMT.D1ATETIME_LOCAL),
+                          });
                       }}
+                      endTimeSet={(time) => {
+                        time &&
+                          setFormData({
+                            ...formData,
+                            _dateE: moment(_dateE + ' ' + time)
+                              .tz('America/Toronto')
+                              .format(moment.HTML5_FMT.D1ATETIME_LOCAL),
+                          });
+                      }}
+                      isSet={(isSet) => setIsSet(isSet)}
                     />
+                    <div style={{ opacity }}>
+                      <Calendar
+                        data={(data) =>
+                          _dateS && _dateE
+                            ? setFormData({
+                                ...formData,
+                                _dateS: data,
+                                _dateE: '',
+                              })
+                            : !_dateS
+                            ? setFormData({
+                                ...formData,
+                                _dateS: data,
+                              })
+                            : setFormData({
+                                ...formData,
+                                _dateE: data,
+                              })
+                        }
+                        events={request.requests}
+                      />
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -305,27 +508,49 @@ const IndDashboard = ({
                     <table className='calendar-table'>
                       <thead>
                         <tr>
+                          <td colSpan={`${category.categories.length}`}>
+                            <button
+                              type='button'
+                              className='btn btn-secondary btn-lg btn-block'
+                              onClick={(e) => {
+                                setFormData({
+                                  _email: '',
+                                  _dateS: '',
+                                  _dateE: '',
+                                  _category: '',
+                                });
+                                setSelectedEvent(null);
+                                setIsSet(false);
+                              }}
+                              disabled={!_dateS && !_dateE && true}
+                            >
+                              Reset
+                            </button>
+                          </td>
+                        </tr>
+                        <tr>
                           <th colSpan='4'>CHOOSE A CATEGORY</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
                           {category.categories.length > 0 &&
-                            category.categories.map(c => (
+                            category.categories.map((c) => (
                               <td key={c._id}>
                                 <button
                                   type='button'
                                   className='btn btn-secondary category'
                                   style={{ background: c.color }}
-                                  data-toggle='tooltip'
                                   title={c.title}
                                   name='_category'
+                                  data-tip
+                                  data-for={c.title}
                                   value={_category}
-                                  onClick={e =>
+                                  onClick={(e) =>
                                     setFormData({
                                       ...formData,
                                       _category: c.title,
-                                      _email: employee.employee.email
+                                      _email: employee.employee.email,
                                     })
                                   }
                                 >
@@ -333,6 +558,14 @@ const IndDashboard = ({
                                     {c.title}
                                   </small>
                                 </button>
+                                <ReactTooltip
+                                  id={c.title}
+                                  effect='solid'
+                                  place='top'
+                                  aria-haspopup='true'
+                                >
+                                  {c.title}
+                                </ReactTooltip>
                               </td>
                             ))}
                         </tr>
@@ -342,9 +575,11 @@ const IndDashboard = ({
                               type='button'
                               className='btn btn-primary btn-lg btn-block'
                               style={{ marginTop: '1em' }}
-                              onClick={e => addRequestOrWarn()}
+                              onClick={(e) => addRequestOrWarn()}
                               disabled={
-                                _email && _date && _category ? false : true
+                                _email && _dateS && _dateE && _category
+                                  ? false
+                                  : true
                               }
                             >
                               Request
@@ -356,18 +591,12 @@ const IndDashboard = ({
                             <button
                               type='button'
                               className='btn btn-danger btn-lg btn-block'
-                              onClick={e => deleteEvent(selectedEvent)}
-                              disabled={
-                                !selectedEvent ||
-                                (request.requests.filter(
-                                  r =>
-                                    moment(r.date).format('YYYY-MM-DD') ===
-                                    moment(selectedEvent.date).format(
-                                      'YYYY-MM-DD'
-                                    )
-                                ).length < 1 &&
-                                  true)
+                              onClick={(e) =>
+                                selectedEvent.length > 1
+                                  ? setEventList(true)
+                                  : deleteEvent(selectedEvent[0])
                               }
+                              disabled={!_dateS && true}
                             >
                               Revoke
                             </button>
@@ -379,6 +608,50 @@ const IndDashboard = ({
                 </tr>
               </tbody>
             </table>
+            <div
+              className='toast show'
+              role='alert'
+              aria-live='assertive'
+              aria-atomic='true'
+              style={{ display: eventList ? 'block' : 'none' }}
+            >
+              <div className='toast-header'>
+                <strong className='mr-auto'>Select Event to Revoke</strong>
+                <button
+                  type='button'
+                  className='ml-2 mb-1 close'
+                  data-dismiss='toast'
+                  aria-label='Close'
+                  onClick={(e) => setEventList(false)}
+                >
+                  <span aria-hidden='true'>&times;</span>
+                </button>
+              </div>
+              <div className='toast-body'>
+                {selectedEvent &&
+                  selectedEvent.length > 0 &&
+                  selectedEvent.map((ev) => (
+                    <Fragment key={ev._id}>
+                      <div>
+                        {`${moment(ev.dateS).format(
+                          'YYYY-MM-DD HH:mm'
+                        )}  ${moment(ev.dateE).format('YYYY-MM-DD HH:mm')}  ${
+                          ev.category.title
+                        }`}
+                        <button
+                          className='btn'
+                          onClick={(e) => {
+                            deleteEvent(ev);
+                            setEventList(false);
+                          }}
+                        >
+                          <i className='far fa-trash-alt'></i>
+                        </button>
+                      </div>
+                    </Fragment>
+                  ))}
+              </div>
+            </div>
           </div>
         </div>
       </Fragment>
@@ -397,14 +670,14 @@ IndDashboard.propTypes = {
   deleteRequest: PropTypes.func.isRequired,
   getRequestsByEmployee: PropTypes.func.isRequired,
   getEmployeeByEmail: PropTypes.func.isRequired,
-  setAlert: PropTypes.func.isRequired
+  setAlert: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   auth: state.auth,
   category: state.category,
   employee: state.employee,
-  request: state.request
+  request: state.request,
 });
 
 export default connect(mapStateToProps, {
@@ -414,5 +687,5 @@ export default connect(mapStateToProps, {
   deleteRequest,
   getEmployeeByEmail,
   getRequestsByEmployee,
-  setAlert
+  setAlert,
 })(IndDashboard);
