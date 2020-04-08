@@ -910,6 +910,10 @@ legend {
   left: 27%;
 }
 
+.modal-admin-title {
+  width: 7em;
+}
+
 .modal-content {
   width: 85%;
   border-radius: 20px 0 20px 0;
@@ -918,9 +922,22 @@ legend {
 .toast {
   position: absolute;
   max-width: 500px;
-  bottom: 25%;
-  left: 65%;
+  top: 90px;
+  left: 40%;
   z-index: 2;
+  font-size: 15px;
+}
+
+.toast-trash:hover {
+  color: var(--danger);
+}
+
+.admin-confirm {
+  top: 80px;
+}
+
+.delete-msg {
+  margin-bottom: 0.7em;
 }
 
 @media only screen and (max-width: 1119px) {

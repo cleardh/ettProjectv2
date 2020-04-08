@@ -13,6 +13,11 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
   }, [getAllLevels, level.levels.length]);
 
   const [title, setTitle] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    displayDelete: 'none',
+    selectedLevel: null,
+  });
+  const { displayDelete, selectedLevel } = showDeleteConfirm;
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -44,7 +49,12 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
                               className='btn btn-outline-secondary btn-admin'
                               type='button'
                               name='delete'
-                              onClick={(e) => deleteLevel(l._id)}
+                              onClick={(e) =>
+                                setShowDeleteConfirm({
+                                  displayDelete: 'block',
+                                  selectedLevel: l,
+                                })
+                              }
                             >
                               <i className='far fa-trash-alt'></i>
                             </button>
@@ -54,6 +64,57 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
                     ))}
                   </tbody>
                 </table>
+
+                {/* Toast Confirm Delete */}
+                {selectedLevel && (
+                  <div
+                    className='toast show admin-confirm'
+                    role='alert'
+                    aria-live='assertive'
+                    aria-atomic='true'
+                    style={{ display: displayDelete }}
+                  >
+                    <div className='toast-header'>
+                      <strong className='mr-auto'>Confirm</strong>
+                      <button
+                        type='button'
+                        className='ml-2 mb-1 close'
+                        data-dismiss='toast'
+                        aria-label='Close'
+                        onClick={(e) =>
+                          setShowDeleteConfirm({
+                            displayDelete: 'none',
+                            selectedLevel: null,
+                          })
+                        }
+                      >
+                        <span aria-hidden='true'>&times;</span>
+                      </button>
+                    </div>
+                    <div className='toast-body'>
+                      <div className='delete-msg'>
+                        {`Do you really want to delele ${selectedLevel.title} level?`}
+                      </div>
+                      <div>
+                        <button
+                          type='button'
+                          className='btn btn-danger btn-lg btn-block'
+                          onClick={(e) => {
+                            deleteLevel(selectedLevel._id);
+                            setShowDeleteConfirm({
+                              displayDelete: 'none',
+                              selectedLevel: null,
+                            });
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Toast Confirm Delete */}
+
                 <hr />
                 <div className='form-group'>
                   <label htmlFor='title'>Title</label>

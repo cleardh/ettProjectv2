@@ -46,6 +46,11 @@ const ManageOrg = ({
     _head: '',
   });
   const { _title, _level, _head } = org;
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    displayDelete: 'none',
+    selectedOrg: null,
+  });
+  const { displayDelete, selectedOrg } = showDeleteConfirm;
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -128,7 +133,12 @@ const ManageOrg = ({
                               className='btn btn-outline-secondary btn-admin'
                               type='button'
                               name='delete'
-                              onClick={(e) => deleteOrganization(o._id)}
+                              onClick={(e) =>
+                                setShowDeleteConfirm({
+                                  displayDelete: 'block',
+                                  selectedOrg: o,
+                                })
+                              }
                             >
                               <i className='far fa-trash-alt'></i>
                             </button>
@@ -136,6 +146,56 @@ const ManageOrg = ({
                         </tr>
                       </Fragment>
                     ))}
+
+                    {/* Toast Confirm Delete */}
+                    {selectedOrg && (
+                      <div
+                        className='toast show admin-confirm'
+                        role='alert'
+                        aria-live='assertive'
+                        aria-atomic='true'
+                        style={{ display: displayDelete }}
+                      >
+                        <div className='toast-header'>
+                          <strong className='mr-auto'>Confirm</strong>
+                          <button
+                            type='button'
+                            className='ml-2 mb-1 close'
+                            data-dismiss='toast'
+                            aria-label='Close'
+                            onClick={(e) =>
+                              setShowDeleteConfirm({
+                                displayDelete: 'none',
+                                selectedOrg: null,
+                              })
+                            }
+                          >
+                            <span aria-hidden='true'>&times;</span>
+                          </button>
+                        </div>
+                        <div className='toast-body'>
+                          <div className='delete-msg'>
+                            {`Do you really want to delele ${selectedOrg.title} organization?`}
+                          </div>
+                          <div>
+                            <button
+                              type='button'
+                              className='btn btn-danger btn-lg btn-block'
+                              onClick={(e) => {
+                                deleteOrganization(selectedOrg._id);
+                                setShowDeleteConfirm({
+                                  displayDelete: 'none',
+                                  selectedOrg: null,
+                                });
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {/* Toast Confirm Delete */}
                   </tbody>
                 </table>
                 <hr />

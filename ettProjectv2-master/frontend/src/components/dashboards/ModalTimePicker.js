@@ -123,7 +123,9 @@ const ModalTimePicker = ({
                       id='customCheck1'
                       name='isAllday'
                       checked={isAllday}
-                      onChange={(e) => setIsAllday(!isAllday)}
+                      onChange={(e) => {
+                        setIsAllday(!isAllday);
+                      }}
                       disabled={startDate !== endDate && 'true'}
                     />
                     <label
@@ -146,6 +148,7 @@ const ModalTimePicker = ({
                   onClose(true);
                   setIsAllday(false);
                   isSet(true);
+                  isAllday && endTimeSet('23:59');
                   if (startTime && endTime) {
                     setStartTime('');
                     setEndTime('');

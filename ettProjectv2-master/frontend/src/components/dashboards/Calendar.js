@@ -221,24 +221,6 @@ export default class Calendar extends React.Component {
         this.props.data(data);
 
         console.log('SELECTED DAY: ', data);
-
-        // const eventList = this.props.events.filter(
-        //   (e) =>
-        //     (moment(e.dateS).tz('America/Toronto').format('Y') ===
-        //       this.year() &&
-        //       moment(e.dateS).tz('America/Toronto').format('MMMM') ===
-        //         this.month()) ||
-        //     (moment(e.dateE).tz('America/Toronto').format('Y') ===
-        //       this.year() &&
-        //       moment(e.dateE).tz('America/Toronto').format('MMMM') ===
-        //         this.month())
-        // );
-        // eventList.map(
-        //   (e) =>
-        //     moment(e.dateS).tz('America/Toronto').date() <= d &&
-        //     moment(e.dateE).tz('America/Toronto').date() >= d &&
-        //     this.props.selectedEvent(e)
-        // );
       }
     );
   };
@@ -254,23 +236,24 @@ export default class Calendar extends React.Component {
         </td>
       );
     }
-    let daysInMonth = [];
 
+    const eventList = this.props.events.filter(
+      (e) =>
+        (moment(e.dateS).tz('America/Toronto').format('Y') === this.year() &&
+          moment(e.dateS).tz('America/Toronto').format('MMMM') ===
+            this.month()) ||
+        (moment(e.dateE).tz('America/Toronto').format('Y') === this.year() &&
+          moment(e.dateE).tz('America/Toronto').format('MMMM') === this.month())
+    );
+
+    let daysInMonth = [];
     for (let d = 1; d <= this.daysInMonth(); d++) {
       let currentDay =
         this.currentDay() === this.state.today.format('MMMM DD, YYYY') &&
         d === this.state.today.date()
           ? 'today'
           : '';
-      const eventList = this.props.events.filter(
-        (e) =>
-          (moment(e.dateS).tz('America/Toronto').format('Y') === this.year() &&
-            moment(e.dateS).tz('America/Toronto').format('MMMM') ===
-              this.month()) ||
-          (moment(e.dateE).tz('America/Toronto').format('Y') === this.year() &&
-            moment(e.dateE).tz('America/Toronto').format('MMMM') ===
-              this.month())
-      );
+
       const style = eventList.map(
         (e) =>
           moment(e.dateS).tz('America/Toronto').format('YYYY-MM-DD') <=
@@ -309,6 +292,7 @@ export default class Calendar extends React.Component {
         background: '',
         borderColor: 'transparent',
       };
+
       style.map((s) => {
         if (s.background) {
           styles = {

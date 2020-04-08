@@ -12,7 +12,8 @@ import {
   getOrganizationsByMember,
   getOrganizationByTitle,
   addMemberToOrganization,
-  deleteMemberFromOrganization
+  deleteMemberFromOrganization,
+  clearMemberOrganizations,
 } from '../../actions/organization';
 
 const ManageEmployee = ({
@@ -30,7 +31,8 @@ const ManageEmployee = ({
   getOrganizationsByMember,
   getOrganizationByTitle,
   addMemberToOrganization,
-  deleteMemberFromOrganization
+  deleteMemberFromOrganization,
+  clearMemberOrganizations,
 }) => {
   localStorage.setItem('component', 'ManageEmployee');
   useEffect(() => {
@@ -52,7 +54,7 @@ const ManageEmployee = ({
   }, [
     getOrganizationsByMember,
     employee.employee,
-    organization.memberOrganizations.length
+    organization.memberOrganizations,
   ]);
 
   const [org, setOrg] = useState('Operations');
@@ -62,18 +64,32 @@ const ManageEmployee = ({
   }, [getOrganizationByTitle, org]);
 
   useEffect(() => {
-    setEmp({
-      _firstName: employee.employee ? employee.employee.firstName : '',
-      _lastName: employee.employee ? employee.employee.lastName : '',
-      _email: employee.employee ? employee.employee.email : '',
-      _role: employee.employee ? employee.employee.role.title : '',
-      _job: employee.employee ? employee.employee.job.title : '',
-      _dateHired: employee.employee ? employee.employee.dateHired : '',
-      _phone: employee.employee ? employee.employee.phone : '',
-      _calendarId: employee.employee ? employee.employee.calendarId : '',
-      _image: employee.employee ? employee.employee.image : ''
-    });
-  }, [employee.employee]);
+    if (employee.employee) {
+      setEmp({
+        _firstName: employee.employee.firstName,
+        _lastName: employee.employee.lastName,
+        _email: employee.employee.email,
+        _role: employee.employee.role.title,
+        _job: employee.employee.job.title,
+        _dateHired: employee.employee.dateHired,
+        _phone: employee.employee.phone,
+        _calendarId: employee.employee.calendarId,
+        _image: employee.employee.image,
+      });
+    } else {
+      setEmp({
+        _firstName: '',
+        _lastName: '',
+        _email: '',
+        _role: '',
+        _job: '',
+        _dateHired: '',
+        _phone: '',
+        _calendarId: '',
+      });
+      clearMemberOrganizations();
+    }
+  }, [employee.employee, clearMemberOrganizations]);
 
   const [emp, setEmp] = useState({
     _firstName: '',
@@ -84,7 +100,7 @@ const ManageEmployee = ({
     _dateHired: '',
     _phone: '',
     _calendarId: '',
-    _image: ''
+    _image: '',
   });
 
   const {
@@ -96,17 +112,17 @@ const ManageEmployee = ({
     _dateHired,
     _phone,
     _calendarId,
-    _image
+    _image,
   } = emp;
 
-  const onChange = e => {
+  const onChange = (e) => {
     setEmp({
       ...emp,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
     const formData = {
       firstName: _firstName,
@@ -117,15 +133,15 @@ const ManageEmployee = ({
       dateHired: _dateHired,
       phone: _phone,
       calendarId: _calendarId,
-      image: _image
+      image: _image,
     };
     updateEmployee(formData, employee.employee._id);
   };
 
-  const addMember = e => {
+  const addMember = (e) => {
     if (employee.employee) {
       addMemberToOrganization(organization.organization._id, {
-        member: employee.employee
+        member: employee.employee,
       });
     }
   };
@@ -142,7 +158,7 @@ const ManageEmployee = ({
       <div className='wrapper'>
         <AdminSidebar current={'employee'} />
         <div className='admin-wrapper'>
-          <form className='admin-form' onSubmit={e => onSubmit(e)}>
+          <form className='admin-form' onSubmit={(e) => onSubmit(e)}>
             <fieldset>
               <legend>Manage Employee</legend>
               <div className='form-group'>
@@ -155,13 +171,13 @@ const ManageEmployee = ({
                   placeholder='Enter employee email address'
                   name='_email'
                   value={_email}
-                  onChange={e => onChange(e)}
+                  onChange={(e) => onChange(e)}
                 />
 
                 <button
                   type='button'
                   className='btn btn-primary block search'
-                  onClick={e => getEmployeeByEmail(_email)}
+                  onClick={(e) => getEmployeeByEmail(_email)}
                 >
                   Search
                 </button>
@@ -173,13 +189,13 @@ const ManageEmployee = ({
                   id='role'
                   name='_role'
                   value={_role}
-                  onChange={e => {
+                  onChange={(e) => {
                     onChange(e);
                     getRoleByTitle(e.target.value);
                   }}
                 >
                   {role.roles.length > 0 &&
-                    role.roles.map(r => (
+                    role.roles.map((r) => (
                       <option key={r._id} value={r.title}>
                         {r.title}
                       </option>
@@ -193,13 +209,13 @@ const ManageEmployee = ({
                   id='job'
                   name='_job'
                   value={_job}
-                  onChange={e => {
+                  onChange={(e) => {
                     onChange(e);
                     getJobByTitle(e.target.value);
                   }}
                 >
                   {job.jobs.length > 0 &&
-                    job.jobs.map(j => (
+                    job.jobs.map((j) => (
                       <option key={j._id} value={j.title}>
                         {j.title}
                       </option>
@@ -214,10 +230,10 @@ const ManageEmployee = ({
                   name='_dateHired'
                   id='dateHired'
                   value={moment(_dateHired).format('YYYY-MM-DD')}
-                  onChange={e =>
+                  onChange={(e) =>
                     setEmp({
                       ...emp,
-                      _dateHired: moment(e.target.value)
+                      _dateHired: moment(e.target.value),
                     })
                   }
                 />
@@ -229,7 +245,7 @@ const ManageEmployee = ({
                   className='form-control'
                   name='_phone'
                   value={_phone}
-                  onChange={e => onChange(e)}
+                  onChange={(e) => onChange(e)}
                 />
               </div>
               <div className='form-group'>
@@ -239,7 +255,7 @@ const ManageEmployee = ({
                   className='form-control'
                   name='_calendarId'
                   value={_calendarId}
-                  onChange={e => onChange(e)}
+                  onChange={(e) => onChange(e)}
                 />
               </div>
 
@@ -248,23 +264,25 @@ const ManageEmployee = ({
                 <label htmlFor='organization'>Organizations</label>
                 <table className='table table-hover'>
                   <tbody>
-                    {organization.memberOrganizations.map(mo => (
-                      <Fragment key={mo._id}>
-                        <tr>
-                          <td>{mo.title}</td>
-                          <td align='right'>
-                            <button
-                              className='btn btn-outline-secondary btn-admin'
-                              type='button'
-                              name='delete'
-                              onClick={e => deleteMember(e, mo)}
-                            >
-                              <i className='far fa-trash-alt'></i>
-                            </button>
-                          </td>
-                        </tr>
-                      </Fragment>
-                    ))}
+                    {employee.employee &&
+                      organization.memberOrganizations &&
+                      organization.memberOrganizations.map((mo) => (
+                        <Fragment key={mo._id}>
+                          <tr>
+                            <td>{mo.title}</td>
+                            <td align='right'>
+                              <button
+                                className='btn btn-outline-secondary btn-admin'
+                                type='button'
+                                name='delete'
+                                onClick={(e) => deleteMember(e, mo)}
+                              >
+                                <i className='far fa-trash-alt'></i>
+                              </button>
+                            </td>
+                          </tr>
+                        </Fragment>
+                      ))}
                     <tr>
                       <td align='left'>
                         <div className='form-group'>
@@ -273,13 +291,14 @@ const ManageEmployee = ({
                             id='org'
                             name='org'
                             value={org}
-                            onChange={e => setOrg(e.target.value)}
+                            onChange={(e) => setOrg(e.target.value)}
                           >
-                            {organization.organizations.map(o => (
-                              <option key={o._id} value={o.title}>
-                                {o.title}
-                              </option>
-                            ))}
+                            {organization.organizations &&
+                              organization.organizations.map((o) => (
+                                <option key={o._id} value={o.title}>
+                                  {o.title}
+                                </option>
+                              ))}
                           </select>
                         </div>
                       </td>
@@ -289,7 +308,7 @@ const ManageEmployee = ({
                           type='button'
                           name='addMember'
                           disabled={!employee.employee && true}
-                          onClick={e => addMember(e)}
+                          onClick={(e) => addMember(e)}
                         >
                           <i className='fas fa-plus'></i>
                         </button>
@@ -329,14 +348,15 @@ ManageEmployee.propTypes = {
   getOrganizationsByMember: PropTypes.func.isRequired,
   getOrganizationByTitle: PropTypes.func.isRequired,
   addMemberToOrganization: PropTypes.func.isRequired,
-  deleteMemberFromOrganization: PropTypes.func.isRequired
+  deleteMemberFromOrganization: PropTypes.func.isRequired,
+  clearMemberOrganizations: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   role: state.role,
   job: state.job,
   employee: state.employee,
-  organization: state.organization
+  organization: state.organization,
 });
 
 export default connect(mapStateToProps, {
@@ -350,5 +370,6 @@ export default connect(mapStateToProps, {
   getOrganizationsByMember,
   getOrganizationByTitle,
   addMemberToOrganization,
-  deleteMemberFromOrganization
+  deleteMemberFromOrganization,
+  clearMemberOrganizations,
 })(ManageEmployee);

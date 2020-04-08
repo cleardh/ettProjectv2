@@ -14,11 +14,16 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
 
   const [newRole, setNewRole] = useState({
     title: '',
-    isAdmin: false
+    isAdmin: false,
   });
   const { title, isAdmin } = newRole;
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    displayDelete: 'none',
+    selectedRole: null,
+  });
+  const { displayDelete, selectedRole } = showDeleteConfirm;
 
-  const onChange = e =>
+  const onChange = (e) =>
     setNewRole({ ...newRole, [e.target.name]: e.target.value });
 
   return (
@@ -31,7 +36,7 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
             <form className='admin-form'>
               <fieldset>
                 <legend>Manage Role</legend>
-                {role.roles.map(r => (
+                {role.roles.map((r) => (
                   <div key={r._id}>
                     <div className='input-group mb-3'>
                       <input
@@ -55,7 +60,12 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
                           className='btn btn-outline-secondary btn-admin'
                           type='button'
                           name={r.title}
-                          onClick={e => deleteRole(r._id)}
+                          onClick={(e) =>
+                            setShowDeleteConfirm({
+                              displayDelete: 'block',
+                              selectedRole: r,
+                            })
+                          }
                         >
                           <i className='far fa-trash-alt'></i>
                         </button>
@@ -63,6 +73,57 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
                     </div>
                   </div>
                 ))}
+
+                {/* Toast Confirm Delete */}
+                {selectedRole && (
+                  <div
+                    className='toast show admin-confirm'
+                    role='alert'
+                    aria-live='assertive'
+                    aria-atomic='true'
+                    style={{ display: displayDelete }}
+                  >
+                    <div className='toast-header'>
+                      <strong className='mr-auto'>Confirm</strong>
+                      <button
+                        type='button'
+                        className='ml-2 mb-1 close'
+                        data-dismiss='toast'
+                        aria-label='Close'
+                        onClick={(e) =>
+                          setShowDeleteConfirm({
+                            displayDelete: 'none',
+                            selectedRole: null,
+                          })
+                        }
+                      >
+                        <span aria-hidden='true'>&times;</span>
+                      </button>
+                    </div>
+                    <div className='toast-body'>
+                      <div className='delete-msg'>
+                        {`Do you really want to delele ${selectedRole.title} role?`}
+                      </div>
+                      <div>
+                        <button
+                          type='button'
+                          className='btn btn-danger btn-lg btn-block'
+                          onClick={(e) => {
+                            deleteRole(selectedRole._id);
+                            setShowDeleteConfirm({
+                              displayDelete: 'none',
+                              selectedRole: null,
+                            });
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Toast Confirm Delete */}
+
                 <hr />
                 <div className='input-group mb-3'>
                   <input
@@ -71,7 +132,7 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
                     placeholder='Add role'
                     name='title'
                     value={title}
-                    onChange={e => onChange(e)}
+                    onChange={(e) => onChange(e)}
                   />
                   <div className='input-group-append'>
                     <div className='custom-control custom-switch toggle-container'>
@@ -81,10 +142,10 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
                         id='toggleAdmin'
                         name='isAdmin'
                         checked={isAdmin ? true : false}
-                        onChange={e =>
+                        onChange={(e) =>
                           setNewRole({
                             ...newRole,
-                            isAdmin: !isAdmin
+                            isAdmin: !isAdmin,
                           })
                         }
                       />
@@ -97,11 +158,11 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
                       className='btn btn-outline-secondary btn-add'
                       type='button'
                       name='new_role'
-                      onClick={e => {
+                      onClick={(e) => {
                         addRole(newRole);
                         setNewRole({
                           title: '',
-                          isAdmin: false
+                          isAdmin: false,
                         });
                       }}
                     >
@@ -124,11 +185,11 @@ ManageRole.propTypes = {
   role: PropTypes.object,
   addRole: PropTypes.func.isRequired,
   deleteRole: PropTypes.func.isRequired,
-  getAllRoles: PropTypes.func.isRequired
+  getAllRoles: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  role: state.role
+const mapStateToProps = (state) => ({
+  role: state.role,
 });
 
 export default connect(mapStateToProps, { addRole, getAllRoles, deleteRole })(

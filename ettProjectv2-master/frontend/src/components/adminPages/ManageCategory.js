@@ -32,8 +32,15 @@ const ManageCategory = ({
     isUnlimited: false,
     color: '',
   });
-
   const { title, limit, isUnlimited, color } = newCategory;
+  const [btn, setBtn] = useState('add');
+  const [colorPickerDisplay, setColorPickerDisplay] = useState('none');
+  const [circlePickerValue, setCirclePickerValue] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    displayDelete: 'none',
+    selectedCategory: null,
+  });
+  const { displayDelete, selectedCategory } = showDeleteConfirm;
 
   const onChange = (e) => {
     setNewCategory({
@@ -41,12 +48,6 @@ const ManageCategory = ({
       [e.target.name]: e.target.value,
     });
   };
-
-  const [btn, setBtn] = useState('add');
-
-  const [colorPickerDisplay, setColorPickerDisplay] = useState('none');
-
-  const [circlePickerValue, setCirclePickerValue] = useState('');
 
   const setColorAndClose = (e) => {
     setNewCategory({
@@ -170,7 +171,12 @@ const ManageCategory = ({
                               className='btn btn-outline-secondary btn-admin'
                               type='button'
                               name='employee'
-                              onClick={(e) => deleteCategory(c._id)}
+                              onClick={(e) =>
+                                setShowDeleteConfirm({
+                                  displayDelete: 'block',
+                                  selectedCategory: c,
+                                })
+                              }
                             >
                               <i className='far fa-trash-alt'></i>
                             </button>
@@ -178,6 +184,57 @@ const ManageCategory = ({
                         </tr>
                       </Fragment>
                     ))}
+
+                    {/* Toast Confirm Delete */}
+                    {selectedCategory && (
+                      <div
+                        className='toast show admin-confirm'
+                        role='alert'
+                        aria-live='assertive'
+                        aria-atomic='true'
+                        style={{ display: displayDelete }}
+                      >
+                        <div className='toast-header'>
+                          <strong className='mr-auto'>Confirm</strong>
+                          <button
+                            type='button'
+                            className='ml-2 mb-1 close'
+                            data-dismiss='toast'
+                            aria-label='Close'
+                            onClick={(e) =>
+                              setShowDeleteConfirm({
+                                displayDelete: 'none',
+                                selectedCategory: null,
+                              })
+                            }
+                          >
+                            <span aria-hidden='true'>&times;</span>
+                          </button>
+                        </div>
+                        <div className='toast-body'>
+                          <div className='delete-msg'>
+                            {`Do you really want to delele ${selectedCategory.title} category?`}
+                          </div>
+                          <div>
+                            <button
+                              type='button'
+                              className='btn btn-danger btn-lg btn-block'
+                              onClick={(e) => {
+                                deleteCategory(selectedCategory._id);
+                                setShowDeleteConfirm({
+                                  displayDelete: 'none',
+                                  selectedCategory: null,
+                                });
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {/* Toast Confirm Delete */}
+
                     <tr>
                       <td className='add-category'>
                         <div className='form-group'>
@@ -253,7 +310,7 @@ const ManageCategory = ({
                               <div className='modal-dialog' role='document'>
                                 <div className='modal-content'>
                                   <div className='modal-header'>
-                                    <h5 className='modal-title'>
+                                    <h5 className='modal-title modal-admin-title'>
                                       Select Color
                                     </h5>
                                     <div
@@ -281,13 +338,15 @@ const ManageCategory = ({
                                     <CirclePicker
                                       width='450px'
                                       colors={[
-                                        '#f44336',
-                                        '#e91e63',
-                                        '#9c27b0',
-                                        '#673ab7',
-                                        '#3f51b5',
-                                        '#2196f3',
-                                        '#03a9f4',
+                                        '#FF9AA2',
+                                        '#FFB7B2',
+                                        '#B5EAD7',
+                                        '#C7CEEA',
+                                        '#C36F31',
+                                        '#DDA982',
+                                        '#CAB39F',
+                                        '#FF9CEE',
+                                        '#85E3FF',
                                       ]}
                                       onChangeComplete={(c, e) =>
                                         setCirclePickerValue(c.hex)

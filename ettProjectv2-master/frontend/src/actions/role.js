@@ -5,74 +5,76 @@ import {
   GET_ROLE,
   GET_ROLES,
   CLEAR_ROLE,
-  ROLE_ERROR
+  ROLE_ERROR,
 } from './types';
 import { tokenConfig } from './auth';
+import { setAlert } from './alert';
 
-export const addRole = formData => (dispatch, getState) => {
+export const addRole = (formData) => (dispatch, getState) => {
   axios
     .post('http://localhost:5000/api/role', formData, tokenConfig(getState))
-    .then(res => {
+    .then((res) => {
       dispatch({
         type: ADD_ROLE,
-        payload: res.data
+        payload: res.data,
       });
-      console.log(`Role ${formData.title} added`);
+      dispatch(setAlert('Role added successfully', 'success'));
     })
-    .catch(err =>
+    .catch((err) =>
       dispatch({
         type: ROLE_ERROR,
-        payload: { msg: err.message }
+        payload: { msg: err.message },
       })
     );
 };
 
-export const deleteRole = id => (dispatch, getState) => {
-  if (window.confirm('Do you want to delete this role for sure?')) {
-    axios
-      .delete(`http://localhost:5000/api/role/${id}`, tokenConfig(getState))
-      .then(res => dispatch({ type: DELETE_ROLE, payload: res.data }))
-      .catch(err =>
-        dispatch({
-          type: ROLE_ERROR,
-          payload: { msg: err.message }
-        })
-      );
-  }
+export const deleteRole = (id) => (dispatch, getState) => {
+  axios
+    .delete(`http://localhost:5000/api/role/${id}`, tokenConfig(getState))
+    .then((res) => {
+      dispatch({ type: DELETE_ROLE, payload: res.data });
+      dispatch(setAlert('Role deleted successfully', 'success'));
+    })
+    .catch((err) =>
+      dispatch({
+        type: ROLE_ERROR,
+        payload: { msg: err.message },
+      })
+    );
 };
 
 export const getAllRoles = () => (dispatch, getState) => {
   axios
     .get('http://localhost:5000/api/role', tokenConfig(getState))
-    .then(res =>
+    .then((res) =>
       dispatch({
         type: GET_ROLES,
-        payload: res.data
+        payload: res.data,
       })
     )
-    .catch(err =>
+    .catch((err) =>
       dispatch({
         type: ROLE_ERROR,
-        payload: { msg: err.message }
+        payload: { msg: err.message },
       })
     );
 };
 
-export const getRoleByTitle = title => (dispatch, getState) => {
+export const getRoleByTitle = (title) => (dispatch, getState) => {
   dispatch({ type: CLEAR_ROLE });
 
   axios
     .get(`http://localhost:5000/api/role/title/${title}`, tokenConfig(getState))
-    .then(res =>
+    .then((res) =>
       dispatch({
         type: GET_ROLE,
-        payload: res.data
+        payload: res.data,
       })
     )
-    .catch(err =>
+    .catch((err) =>
       dispatch({
         type: ROLE_ERROR,
-        payload: { msg: err.message }
+        payload: { msg: err.message },
       })
     );
 };

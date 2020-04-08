@@ -8,7 +8,8 @@ import {
   ADD_MEMBER,
   DELETE_MEMBER,
   CLEAR_ORGANIZATION,
-  ORGANIZATION_ERROR
+  CLEAR_MEMBER_ORGANIZATIONS,
+  ORGANIZATION_ERROR,
 } from '../actions/types';
 
 const initialState = {
@@ -16,10 +17,10 @@ const initialState = {
   organizations: [],
   memberOrganizations: [],
   loading: true,
-  error: {}
+  error: {},
 };
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
     case ADD_ORGANIZATION:
@@ -27,65 +28,71 @@ export default function(state = initialState, action) {
         ...state,
         organization: payload,
         organizations: state.organizations.concat(payload),
-        loading: false
+        loading: false,
       };
     case GET_ORGANIZATION:
       return {
         ...state,
         organization: payload,
-        loading: false
+        loading: false,
       };
     case GET_MEMBER_ORGANIZATIONS:
       return {
         ...state,
         memberOrganizations: payload,
-        loading: false
+        loading: false,
       };
     case ADD_MEMBER:
       return {
         ...state,
         memberOrganizations: state.memberOrganizations.concat(payload),
-        loading: false
+        loading: false,
       };
     case DELETE_MEMBER:
       return {
         ...state,
         memberOrganizations: state.memberOrganizations.filter(
-          o => o.id !== payload.id
+          (o) => o.id !== payload.id
         ),
-        loading: false
+        loading: false,
       };
     case DELETE_ORGANIZATION:
       return {
         ...state,
         organizations: state.organizations.filter(
-          organization => organization.id !== payload.id
+          (organization) => organization.id !== payload.id
         ),
-        loading: false
+        loading: false,
       };
     case UPDATE_ORGANIZATION:
       return {
         ...state,
         organization: payload,
-        loading: false
+        loading: false,
       };
     case GET_ORGANIZATIONS:
       return {
         ...state,
         organizations: payload,
-        loading: false
+        loading: false,
       };
     case CLEAR_ORGANIZATION:
       return {
         ...state,
         organization: null,
-        loading: false
+        loading: false,
+      };
+    case CLEAR_MEMBER_ORGANIZATIONS:
+      return {
+        ...state,
+        memberOrganizations: null,
+        loading: false,
       };
     case ORGANIZATION_ERROR:
       return {
         ...state,
         error: payload,
-        loading: false
+        loading: false,
       };
     default:
       return state;

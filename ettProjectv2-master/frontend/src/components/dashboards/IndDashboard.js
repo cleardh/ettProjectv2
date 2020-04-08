@@ -64,6 +64,8 @@ const IndDashboard = ({
   const [dateValidity, setDateValidity] = useState(true);
   const [isSet, setIsSet] = useState(false);
 
+  console.log(isSet);
+
   // Select date validation
   useEffect(() => {
     if (_dateS && _dateE && isSet) {
@@ -204,39 +206,42 @@ const IndDashboard = ({
         ) +
           getRequestDaysAtStake(_dateS, _dateE)
     ) {
-      setAlert(
-        `Request denied due to limit (${totalRequestsByCategoryThisYear(
-          request.requests,
-          category.category._id
-        )} + ${getRequestDaysAtStake(_dateS, _dateE)}
-        )`,
-        'danger'
+      setAlert('Request denied due to limit', 'danger');
+    } else if (
+      selectedEvent &&
+      selectedEvent.filter(
+        (e) =>
+          (moment(_dateS).tz('America/Toronto') >=
+            moment(e.dateS).tz('America/Toronto') &&
+            moment(_dateS).tz('America/Toronto') <=
+              moment(e.dateE).tz('America/Toronto')) ||
+          (moment(_dateE).tz('America/Toronto') >=
+            moment(e.dateS).tz('America/Toronto') &&
+            moment(_dateE).tz('America/Toronto') <=
+              moment(e.dateE).tz('America/Toronto')) ||
+          (moment(e.dateS).tz('America/Toronto') >=
+            moment(_dateS).tz('America/Toronto') &&
+            moment(e.dateS).tz('America/Toronto') <=
+              moment(_dateE).tz('America/Toronto')) ||
+          (moment(e.dateE).tz('America/Toronto') >=
+            moment(_dateS).tz('America/Toronto') &&
+            moment(e.dateE).tz('America/Toronto') <=
+              moment(_dateE).tz('America/Toronto'))
+      ).length > 0
+    ) {
+      console.log(
+        moment(_dateS).tz('America/Toronto').format('YYYY-MM-DDTHH:mm'),
+        moment(_dateE).tz('America/Toronto').format('YYYY-MM-DDTHH:mm')
       );
-    } else if (selectedEvent) {
-      if (
-        moment(_dateS).tz('America/Toronto') >=
-          moment(selectedEvent[0].dateS).tz('America/Toronto') ||
-        moment(_dateS).tz('America/Toronto') <=
-          moment(selectedEvent[0].dateE).tz('America/Toronto') ||
-        moment(_dateE).tz('America/Toronto') >=
-          moment(selectedEvent[0].dateS).tz('America/Toronto') ||
-        moment(_dateE).tz('America/Toronto') <=
-          moment(selectedEvent[0].dateE).tz('America/Toronto')
-      ) {
-        console.log(
-          moment(_dateS).tz('America/Toronto').format('YYYY-MM-DDTHH:mm'),
-          moment(_dateE).tz('America/Toronto').format('YYYY-MM-DDTHH:mm')
-        );
-        console.log(
-          moment(selectedEvent[0].dateS)
-            .tz('America/Toronto')
-            .format('YYYY-MM-DDTHH:mm'),
-          moment(selectedEvent[0].dateE)
-            .tz('America/Toronto')
-            .format('YYYY-MM-DDTHH:mm')
-        );
-        setAlert('Request overlapping', 'danger');
-      }
+      console.log(
+        moment(selectedEvent[0].dateS)
+          .tz('America/Toronto')
+          .format('YYYY-MM-DDTHH:mm'),
+        moment(selectedEvent[0].dateE)
+          .tz('America/Toronto')
+          .format('YYYY-MM-DDTHH:mm')
+      );
+      setAlert('Request overlapping', 'danger');
     } else {
       addRequest(
         {
@@ -261,7 +266,6 @@ const IndDashboard = ({
       _category: '',
     });
   };
-  console.log(formData);
 
   const deleteEvent = (event) => {
     if (
@@ -459,20 +463,20 @@ const IndDashboard = ({
                           _dateE: '',
                         })
                       }
-                      startTimeSet={(time) => {
-                        time &&
+                      startTimeSet={(startTime) => {
+                        startTime &&
                           setFormData({
                             ...formData,
-                            _dateS: moment(_dateS + ' ' + time)
+                            _dateS: moment(_dateS + ' ' + startTime)
                               .tz('America/Toronto')
                               .format(moment.HTML5_FMT.D1ATETIME_LOCAL),
                           });
                       }}
-                      endTimeSet={(time) => {
-                        time &&
+                      endTimeSet={(endTime) => {
+                        endTime &&
                           setFormData({
                             ...formData,
-                            _dateE: moment(_dateE + ' ' + time)
+                            _dateE: moment(_dateE + ' ' + endTime)
                               .tz('America/Toronto')
                               .format(moment.HTML5_FMT.D1ATETIME_LOCAL),
                           });
@@ -591,11 +595,7 @@ const IndDashboard = ({
                             <button
                               type='button'
                               className='btn btn-danger btn-lg btn-block'
-                              onClick={(e) =>
-                                selectedEvent.length > 1
-                                  ? setEventList(true)
-                                  : deleteEvent(selectedEvent[0])
-                              }
+                              onClick={(e) => setEventList(true)}
                               disabled={!_dateS && true}
                             >
                               Revoke
@@ -622,7 +622,10 @@ const IndDashboard = ({
                   className='ml-2 mb-1 close'
                   data-dismiss='toast'
                   aria-label='Close'
-                  onClick={(e) => setEventList(false)}
+                  onClick={(e) => {
+                    setEventList(false);
+                    setFormData({ ...formData, _dateS: '' });
+                  }}
                 >
                   <span aria-hidden='true'>&times;</span>
                 </button>
@@ -633,19 +636,28 @@ const IndDashboard = ({
                   selectedEvent.map((ev) => (
                     <Fragment key={ev._id}>
                       <div>
+                        <span
+                          style={{
+                            marginRight: '0.5em',
+                            fontWeight: '600',
+                            color: ev.category.color,
+                          }}
+                        >
+                          {ev.category.title}
+                        </span>
                         {`${moment(ev.dateS).format(
                           'YYYY-MM-DD HH:mm'
-                        )}  ${moment(ev.dateE).format('YYYY-MM-DD HH:mm')}  ${
-                          ev.category.title
-                        }`}
+                        )}  ${moment(ev.dateE).format(
+                          'YYYY-MM-DD HH:mm'
+                        )}`}{' '}
                         <button
-                          className='btn'
+                          className='btn toast-trash'
                           onClick={(e) => {
                             deleteEvent(ev);
                             setEventList(false);
                           }}
                         >
-                          <i className='far fa-trash-alt'></i>
+                          <i className='far fa-trash-alt fa-2x'></i>
                         </button>
                       </div>
                     </Fragment>

@@ -49,36 +49,34 @@ export const addRequest = (formData, calendarId) => (dispatch, getState) => {
 };
 
 export const deleteRequest = (request) => (dispatch, getState) => {
-  if (window.confirm('Do you want to delete this request for sure?')) {
-    axios
-      .delete(
-        `http://localhost:5000/api/request/${request._id}`,
-        tokenConfig(getState)
-      )
-      .then((res) => {
-        axios
-          .delete(
-            `http://localhost:5000/api/calendar/${request.user.calendarId}/${res.data.googleEventId}`,
-            tokenConfig(getState)
-          )
-          .then((res) => {
-            dispatch({ type: DELETE_REQUEST, payload: request });
-            dispatch(setAlert('Request removed', 'success'));
-          })
-          .catch((err) =>
-            dispatch({
-              type: REQUEST_ERROR,
-              payload: { msg: err.message },
-            })
-          );
-      })
-      .catch((err) =>
-        dispatch({
-          type: REQUEST_ERROR,
-          payload: { msg: err.message },
+  axios
+    .delete(
+      `http://localhost:5000/api/request/${request._id}`,
+      tokenConfig(getState)
+    )
+    .then((res) => {
+      axios
+        .delete(
+          `http://localhost:5000/api/calendar/${request.user.calendarId}/${res.data.googleEventId}`,
+          tokenConfig(getState)
+        )
+        .then((res) => {
+          dispatch({ type: DELETE_REQUEST, payload: request });
+          dispatch(setAlert('Request removed', 'success'));
         })
-      );
-  }
+        .catch((err) =>
+          dispatch({
+            type: REQUEST_ERROR,
+            payload: { msg: err.message },
+          })
+        );
+    })
+    .catch((err) =>
+      dispatch({
+        type: REQUEST_ERROR,
+        payload: { msg: err.message },
+      })
+    );
 };
 
 export const generateReport = (dateRange) => (dispatch, getState) => {
