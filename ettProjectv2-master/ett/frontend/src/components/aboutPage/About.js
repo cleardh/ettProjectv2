@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IndNavbar from '../layouts/navbars/IndNavbar';
 import member1 from '../../assets/img/dkang.png';
-import member2 from '../../assets/img/avatar02.png';
+import member2 from '../../assets/img/JordanWeadick.jpg';
 import member3 from '../../assets/img/avatar03.png';
 import advisor from '../../assets/img/avatar04.png';
 
@@ -18,25 +18,25 @@ const About = ({ auth: { user } }) => {
           <div className='grid-item profile'>
             <h4>Dongha Kang</h4>
             <hr />
-            <img src={member1} alt='team member 1' />
+            <img src={member1} alt='Dongha Kang' />
             <p>Software Developer</p>
           </div>
           <div className='grid-item profile'>
-            <h4>Member 2</h4>
+            <h4>Jordan Weadick</h4>
             <hr />
-            <img src={member2} alt='team member 1' />
+            <img src={member2} alt='Jordan Weadick' />
             <p>Software Developer</p>
           </div>
           <div className='grid-item profile'>
-            <h4>Member 3</h4>
+            <h4>Yasir Karapinar</h4>
             <hr />
-            <img src={member3} alt='team member 1' />
+            <img src={member3} alt='Yasir Karapinar' />
             <p>Software Developer</p>
           </div>
           <div className='grid-item profile'>
-            <h4>Advisor</h4>
+            <h4>Harry Scanlan (Advisor)</h4>
             <hr />
-            <img src={advisor} alt='team member 1' />
+            <img src={advisor} alt='Advisor: Harry Scanlan' />
             <p>Software Developer</p>
           </div>
         </div>
@@ -46,11 +46,11 @@ const About = ({ auth: { user } }) => {
 };
 
 About.propTypes = {
-  auth: PropTypes.object
+  auth: PropTypes.object,
 };
 
-const mapStateToProps = state => ({
-  auth: state.auth
+const mapStateToProps = (state) => ({
+  auth: state.auth,
 });
 
 export default connect(mapStateToProps)(About);

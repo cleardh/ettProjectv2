@@ -311,6 +311,20 @@ const GrpDashboard = ({
                 <li className='list-group-item active'>PENDING REQUESTS</li>
                 {request.requests
                   .filter((r) => !r.isConfirmed)
+                  .sort((a, b) => {
+                    if (
+                      moment(a.dateS).tz('America/Toronto') <
+                      moment(b.dateS).tz('America/Toronto')
+                    ) {
+                      return -1;
+                    } else if (
+                      moment(a.dateS).tz('America/Toronto') >
+                      moment(b.dateS).tz('America/Toronto')
+                    ) {
+                      return 1;
+                    }
+                    return 0;
+                  })
                   .map((r) => (
                     <li
                       key={r._id}
@@ -321,7 +335,7 @@ const GrpDashboard = ({
                         <span
                           className='member-cell'
                           style={{
-                            width: '100px',
+                            width: '125px',
                           }}
                         >
                           <span
@@ -351,7 +365,6 @@ const GrpDashboard = ({
                             .format('YYYY-MM-DD HH:mm')}
                         </span>
                         <span
-                          align='center'
                           className='member-cell'
                           style={{ width: '170px' }}
                         >
@@ -396,7 +409,9 @@ const GrpDashboard = ({
                   >
                     <div className='lh-20'>
                       <span className='member-cell'>{i + 1}</span>
-                      <span className='member-cell'>{m.email}</span>
+                      <span className='member-cell' style={{ width: '335px' }}>
+                        {m.email}
+                      </span>
                       <span className='member-cell' style={{ width: '100px' }}>
                         {m.firstName}
                       </span>

@@ -2,9 +2,10 @@ const router = require('express').Router();
 const auth = require('../../middleware/auth');
 const moment = require('moment-timezone');
 const { check, validationResult } = require('express-validator');
-const CONFIG = require('../../config/settings');
+const settings = require('../../config/settings');
 const CalendarAPI = require('node-google-calendar');
-const cal = new CalendarAPI(CONFIG);
+const cal = new CalendarAPI(settings);
+const nodemailer = require('nodemailer');
 
 const Request = require('../../models/Request');
 
@@ -60,9 +61,12 @@ router.post(
           end: {
             date: moment(request.dateE)
               .tz('America/Toronto')
+              .add(1, 'days')
               .format('YYYY-MM-DD'),
           },
         };
+        console.log(params.start.date);
+        console.log(params.end.date);
       }
 
       cal.Events.insert(calendarId, params)

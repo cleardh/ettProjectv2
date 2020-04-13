@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const keys = require('../../config/keys');
+const config = require('config');
 const auth = require('../../middleware/auth');
 const Employee = require('../../models/Employee');
 
@@ -9,7 +9,7 @@ const Employee = require('../../models/Employee');
 router.get(
   '/google',
   passport.authenticate('google', {
-    scope: ['profile', 'email']
+    scope: ['profile', 'email'],
   })
 );
 
@@ -19,18 +19,18 @@ let currentUser = null;
 router.get(
   '/google/redirect',
   passport.authenticate('google', {
-    failureRedirect: 'http://localhost:3000/'
+    failureRedirect: 'http://localhost:3000/',
   }),
   (req, res) => {
     currentUser = req.user;
     const payload = {
       user: {
-        id: req.user.id
-      }
+        id: req.user.id,
+      },
     };
     jwt.sign(
       payload,
-      keys.jwt.jwtSecret,
+      config.get('jwtSecret'),
       { expiresIn: 3600000 },
       (err, token) => {
         if (err) throw err;

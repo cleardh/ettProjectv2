@@ -7,7 +7,7 @@ import { logout } from '../../../actions/auth';
 
 const IndNavbar = ({ isAbout, user, logout }) => {
   const [dropdown, setDropdown] = useState({
-    display: 'none'
+    display: 'none',
   });
   const { display } = dropdown;
 
@@ -32,9 +32,9 @@ const IndNavbar = ({ isAbout, user, logout }) => {
         aria-controls='navbarColor01'
         aria-expanded='false'
         aria-label='Toggle navigation'
-        onClick={e =>
+        onClick={(e) =>
           setDropdown({
-            display: display === 'block' ? 'none' : 'block'
+            display: display === 'block' ? 'none' : 'block',
           })
         }
       >
@@ -81,11 +81,19 @@ const IndNavbar = ({ isAbout, user, logout }) => {
               <i className='fas fa-home'></i> Home{' '}
             </Link>
           </li>
-          <li className='nav-item'>
-            <Link to='/about' className='nav-link'>
-              <i className='fas fa-building'></i> About
-            </Link>
-          </li>
+          {isAbout ? (
+            <li className='nav-item'>
+              <Link to='/dashboard/individual' className='nav-link'>
+                <i className='fas fa-user'></i> Individual
+              </Link>
+            </li>
+          ) : (
+            <li className='nav-item'>
+              <Link to='/about' className='nav-link'>
+                <i className='fas fa-building'></i> About
+              </Link>
+            </li>
+          )}
           {user.role.title !== 'Employee' && (
             <Fragment>
               <li className='nav-item'>
@@ -115,11 +123,11 @@ const IndNavbar = ({ isAbout, user, logout }) => {
 
 IndNavbar.propTypes = {
   user: PropTypes.object,
-  logout: PropTypes.func.isRequired
+  logout: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  user: state.auth.user
+const mapStateToProps = (state) => ({
+  user: state.auth.user,
 });
 
 export default connect(mapStateToProps, { logout })(IndNavbar);

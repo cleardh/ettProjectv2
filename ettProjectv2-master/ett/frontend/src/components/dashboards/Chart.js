@@ -18,6 +18,7 @@ const Chart = ({ category, requestDays, org }) => {
         ['Used', requestDays],
         ['Remaining', category.limit - requestDays],
       ];
+
   const options = {
     title: category.title,
     pieHole: 0.4,
@@ -27,6 +28,7 @@ const Chart = ({ category, requestDays, org }) => {
       ? [category.color]
       : ['#8e8c84', category.color],
   };
+
   return (
     <Fragment>
       <DonutChart
@@ -36,6 +38,9 @@ const Chart = ({ category, requestDays, org }) => {
         data={data}
         options={options}
       />
+      <div className='center-label'>
+        {category.isUnlimited ? 'Unltd' : `${requestDays} / ${category.limit}`}
+      </div>
     </Fragment>
   );
 };

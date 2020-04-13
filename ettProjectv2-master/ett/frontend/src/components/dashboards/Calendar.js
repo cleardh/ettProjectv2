@@ -221,8 +221,6 @@ export default class Calendar extends React.Component {
           .tz('America/Toronto')
           .format('YYYY-MM-DD');
         this.props.data(data);
-
-        console.log('SELECTED DAY: ', data);
       }
     );
   };
@@ -312,7 +310,7 @@ export default class Calendar extends React.Component {
       });
 
       daysInMonth.push(
-        <Fragment key={d}>
+        <Fragment key={uuidv4()}>
           <td
             className='calendar-day'
             onClick={(e) => {
@@ -376,9 +374,6 @@ export default class Calendar extends React.Component {
                     <div className='lh-sm'>
                       {e.isConfirmed ? 'Confirmed' : 'Pending'}
                     </div>
-                    <div style={{ lineHeight: '0.1em' }}>
-                      ---------------------------------------
-                    </div>
                   </Fragment>
                 ))}
               </ReactTooltip>
@@ -405,15 +400,14 @@ export default class Calendar extends React.Component {
     });
 
     let daysinmonth = rows.map((d) => {
-      const key = uuidv4();
       if (d.length > 0) {
         return (
-          <tr key={key} className='date-row'>
+          <tr key={uuidv4()} className='date-row'>
             {d}
           </tr>
         );
       } else {
-        return <tr key={key}></tr>;
+        return <tr key={uuidv4()}></tr>;
       }
     });
 

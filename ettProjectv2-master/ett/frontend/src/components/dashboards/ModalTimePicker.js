@@ -28,7 +28,7 @@ const ModalTimePicker = ({
 
   useEffect(() => {
     setDisplay(toggleShow);
-  }, [toggleShow, startDate, endDate]);
+  }, [toggleShow]);
 
   useEffect(() => {
     startDate !== endDate ? setIsAllday(true) : setIsAllday(false);
@@ -36,8 +36,8 @@ const ModalTimePicker = ({
 
   // Validation
   useEffect(() => {
-    isValid ? setDisable(false) : setDisable(true);
-  }, [isValid, setDisable]);
+    isValid && startTime && endTime ? setDisable(false) : setDisable(true);
+  }, [isValid, startTime, endTime, setDisable]);
 
   useEffect(() => {
     if (isAllday) {
@@ -60,6 +60,8 @@ const ModalTimePicker = ({
   const submitTime = () => {
     const startHour = Number(startTime.substr(0, 2));
     const endHour = Number(endTime.substr(0, 2));
+    console.log(startTime, endTime);
+    console.log(endHour, startHour, endHour - startHour);
 
     if (endHour - startHour === 5 || isAllday) {
       setTime({ start: startTime, end: endTime });
@@ -74,6 +76,21 @@ const ModalTimePicker = ({
       setIsAllday(true);
       setStartTime('00:00');
       setEndTime('23:59');
+    }
+  };
+
+  const onStartChange = (t) => {
+    setStartTime(t);
+    if (Number(t.substr(0, 2)) > 18) {
+      setAlert('Start time must be on or before 6pm', 'danger');
+      setEndTime(null);
+    } else {
+      t &&
+        setEndTime(
+          `${String(Number(t.substr(0, 2)) + 5).padStart(2, '0')}:${String(
+            t.substr(3)
+          ).padStart(2, '0')}`
+        );
     }
   };
 
@@ -109,9 +126,10 @@ const ModalTimePicker = ({
                   <tr className='datetime-row'>
                     <td>
                       <TimePicker
-                        onChange={(t) => setStartTime(t)}
+                        onChange={(t) => onStartChange(t)}
                         value={startTime}
                         disabled={isAllday}
+                        clearIcon={null}
                       />
                     </td>
                     <td>
@@ -119,6 +137,7 @@ const ModalTimePicker = ({
                         onChange={(t) => setEndTime(t)}
                         value={endTime}
                         disabled={isAllday}
+                        clearIcon={null}
                       />
                     </td>
                   </tr>
@@ -139,7 +158,7 @@ const ModalTimePicker = ({
                       onChange={(e) => {
                         setIsAllday(!isAllday);
                       }}
-                      disabled={startDate !== endDate && 'true'}
+                      disabled={startDate !== endDate && true}
                     />
                     <label
                       className='custom-control-label'

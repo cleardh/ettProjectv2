@@ -561,7 +561,7 @@ legend {
   opacity: 0.8;
   top: 55px;
   right: 1%;
-  width: 110px;
+  width: 150px;
   text-align: right;
   border-radius: 10px;
 }
@@ -844,7 +844,7 @@ legend {
 
 .member-cell {
   display: table-cell;
-  width: 280px;
+  width: 180px;
 }
 
 .grp-listgroup {
@@ -924,7 +924,7 @@ legend {
 }
 
 .toast {
-  position: absolute;
+  position: fixed;
   max-width: 500px;
   top: 90px;
   left: 40%;

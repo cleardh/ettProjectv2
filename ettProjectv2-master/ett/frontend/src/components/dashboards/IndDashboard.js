@@ -413,11 +413,6 @@ const IndDashboard = ({
                     category={c}
                     requestDays={getConfirmedRequestsByCategory(c._id)}
                   />
-                  <div className='center-label'>
-                    {c.isUnlimited
-                      ? 'Unltd'
-                      : `${getConfirmedRequestsByCategory(c._id)} / ${c.limit}`}
-                  </div>
                 </div>
               ))}
             {/* End Chart */}
@@ -586,7 +581,13 @@ const IndDashboard = ({
                               type='button'
                               className='btn btn-danger btn-lg btn-block'
                               onClick={(e) => setEventList(true)}
-                              disabled={!_dateS && true}
+                              disabled={
+                                !_dateS ||
+                                !selectedEvent ||
+                                ((selectedEvent.dateS > _dateS ||
+                                  _dateS > selectedEvent.dateE) &&
+                                  true)
+                              }
                             >
                               Revoke
                             </button>

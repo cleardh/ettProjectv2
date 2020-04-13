@@ -3,7 +3,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const passport = require('passport');
 const cookieSession = require('cookie-session');
-const keys = require('./config/keys');
+const config = require('config');
 require('./middleware/passport');
 
 const app = express();
@@ -12,7 +12,7 @@ app.use(cors());
 app.use(
   cookieSession({
     maxAge: 24 * 60 * 60 * 1000,
-    keys: [keys.session.cookieKey]
+    keys: [config.get('cookieKey')],
   })
 );
 
