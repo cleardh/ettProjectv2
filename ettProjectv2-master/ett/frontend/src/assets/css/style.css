@@ -490,7 +490,7 @@ legend {
 
 .profile img {
   border-radius: 50%;
-  border: 2px solid #244463;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 .profile p {
@@ -916,6 +916,8 @@ legend {
 
 .modal-admin-title {
   width: 7em;
+  line-height: 2em;
+  margin-left: 0.5em;
 }
 
 .modal-content {

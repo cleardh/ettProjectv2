@@ -165,6 +165,7 @@ const ManageRole = ({ role, addRole, deleteRole, getAllRoles }) => {
                           isAdmin: false,
                         });
                       }}
+                      disabled={title === '' || !isAdmin ? true : false}
                     >
                       <i className='fas fa-plus'></i>
                     </button>

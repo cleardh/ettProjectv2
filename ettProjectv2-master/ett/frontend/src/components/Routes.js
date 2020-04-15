@@ -18,7 +18,7 @@ import { loadUser } from '../actions/auth';
 
 const Routes = ({ auth: { token, user, isAuthenticated }, loadUser }) => {
   useEffect(() => {
-    loadUser();
+    localStorage.token && loadUser();
   }, [loadUser]);
 
   if (!token || !localStorage.token || !user || !isAuthenticated) {

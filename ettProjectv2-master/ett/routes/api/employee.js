@@ -14,8 +14,8 @@ router.post(
     [
       check('role', 'Role is required').exists(),
       check('job', 'Job is required').exists(),
-      check('calendarId', 'CalendarID is required').exists()
-    ]
+      check('calendarId', 'CalendarID is required').exists(),
+    ],
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -33,7 +33,7 @@ router.post(
       dateHired,
       phone,
       calendarId,
-      image
+      image,
     } = req.body;
 
     try {
@@ -52,7 +52,7 @@ router.post(
         dateHired,
         phone,
         calendarId,
-        image
+        image,
       });
 
       await employee.save();
@@ -80,7 +80,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // @route   GET api/employee/me
-// @desc    Get all employee
+// @desc    Get current employee
 // @access  private
 router.get('/me', auth, async (req, res) => {
   try {
@@ -125,7 +125,7 @@ router.put('/:id', auth, async (req, res) => {
       dateHired: dateHired ? dateHired : employee.dateHired,
       phone: phone ? phone : employee.phone,
       calendarId: calendarId ? calendarId : employee.calendarId,
-      image: employee.image
+      image: employee.image,
     };
     employee = await Employee.findByIdAndUpdate(
       req.params.id,

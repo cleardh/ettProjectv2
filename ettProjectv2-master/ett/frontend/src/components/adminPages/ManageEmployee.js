@@ -78,15 +78,21 @@ const ManageEmployee = ({
   useEffect(() => {
     if (employee.employee) {
       setEmp({
-        _firstName: employee.employee.firstName,
-        _lastName: employee.employee.lastName,
-        _email: employee.employee.email,
-        _role: employee.employee.role.title,
-        _job: employee.employee.job.title,
-        _dateHired: employee.employee.dateHired,
-        _phone: employee.employee.phone,
-        _calendarId: employee.employee.calendarId,
-        _image: employee.employee.image,
+        _firstName: employee.employee.firstName
+          ? employee.employee.firstName
+          : '',
+        _lastName: employee.employee.lastName ? employee.employee.lastName : '',
+        _email: employee.employee.email ? employee.employee.email : '',
+        _role: employee.employee.role ? employee.employee.role.title : '',
+        _job: employee.employee.job ? employee.employee.job.title : '',
+        _dateHired: employee.employee.dateHired
+          ? employee.employee.dateHired
+          : '',
+        _phone: employee.employee.phone ? employee.employee.phone : '',
+        _calendarId: employee.employee.calendarId
+          ? employee.employee.calendarId
+          : '',
+        _image: employee.employee.image ? employee.employee.image : '',
       });
     } else {
       setEmp({
@@ -126,6 +132,14 @@ const ManageEmployee = ({
     _calendarId,
     _image,
   } = emp;
+
+  useEffect(() => {
+    _role ? getRoleByTitle(_role) : getRoleByTitle('Employee');
+  }, [getRoleByTitle, _role]);
+
+  useEffect(() => {
+    _job ? getJobByTitle(_job) : getJobByTitle('Software Developer');
+  }, [getJobByTitle, _job]);
 
   const onChange = (e) => {
     setEmp({
@@ -199,6 +213,7 @@ const ManageEmployee = ({
                   type='button'
                   className='btn btn-primary block search'
                   onClick={(e) => getEmployeeByEmail(_email)}
+                  disabled={_email === '' ? true : false}
                 >
                   Search
                 </button>
@@ -212,7 +227,6 @@ const ManageEmployee = ({
                   value={_role}
                   onChange={(e) => {
                     onChange(e);
-                    getRoleByTitle(e.target.value);
                   }}
                 >
                   {role.roles.length > 0 &&
@@ -232,7 +246,6 @@ const ManageEmployee = ({
                   value={_job}
                   onChange={(e) => {
                     onChange(e);
-                    getJobByTitle(e.target.value);
                   }}
                 >
                   {job.jobs.length > 0 &&

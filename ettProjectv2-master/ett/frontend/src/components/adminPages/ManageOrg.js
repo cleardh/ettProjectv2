@@ -11,7 +11,6 @@ import {
   updateOrganization,
 } from '../../actions/organization';
 import { getAllLevels, getLevelByTitle } from '../../actions/level';
-import { getEmployeeByEmail } from '../../actions/employee';
 import Loading from '../layouts/Loading';
 
 const ManageOrg = ({
@@ -25,9 +24,9 @@ const ManageOrg = ({
   updateOrganization,
   getAllLevels,
   getLevelByTitle,
-  getEmployeeByEmail,
 }) => {
   localStorage.setItem('component', 'ManageOrg');
+
   useEffect(() => {
     getAllOrganizations();
   }, [getAllOrganizations, organization.organizations]);
@@ -43,9 +42,9 @@ const ManageOrg = ({
   const [org, setOrg] = useState({
     _title: '',
     _level: '',
-    _head: '',
+    _email: '',
   });
-  const { _title, _level, _head } = org;
+  const { _title, _level, _email } = org;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState({
     displayDelete: 'none',
     selectedOrg: null,
@@ -57,13 +56,13 @@ const ManageOrg = ({
     const formData = {
       title: _title,
       level: level.level,
-      head: employee.employee,
+      email: _email,
     };
     btnText === 'Save'
       ? addOrganization(formData)
       : updateOrganization(organization.organization._id, formData);
 
-    setOrg({ _title: '', _level: '', _head: '' });
+    setOrg({ _title: '', _level: '', _email: '' });
     setBtnText('Save');
   };
 
@@ -79,7 +78,7 @@ const ManageOrg = ({
           organization.organization && organization.organization.level
             ? organization.organization.level.title
             : '',
-        _head: organization.organization
+        _email: organization.organization
           ? organization.organization.head.email
           : '',
       });
@@ -96,7 +95,7 @@ const ManageOrg = ({
     setOrg({
       _title: '',
       _level: '',
-      _head: '',
+      _email: '',
     });
   };
 
@@ -249,26 +248,27 @@ const ManageOrg = ({
                     type='text'
                     className='form-control'
                     id='head'
-                    name='_head'
-                    value={_head}
+                    name='_email'
+                    value={_email}
                     onChange={(e) =>
                       setOrg({ ...org, [e.target.name]: e.target.value })
                     }
                     placeholder='Enter email'
-                    onBlur={(e) =>
-                      e.target.value !== '' &&
-                      getEmployeeByEmail(e.target.value)
-                    }
                   />
                 </div>
               </fieldset>
-              <button type='submit' className='btn btn-primary block'>
+              <button
+                type='submit'
+                className='btn btn-primary block'
+                disabled={_title === '' || _email === '' ? true : false}
+              >
                 {btnText}
               </button>
               <button
                 type='button'
                 className='btn btn-danger block'
                 onClick={(e) => cancel(e)}
+                disabled={_title === '' && _email === '' ? true : false}
               >
                 Cancel
               </button>
@@ -293,7 +293,6 @@ ManageOrg.propTypes = {
   updateOrganization: PropTypes.func.isRequired,
   getAllLevels: PropTypes.func.isRequired,
   getLevelByTitle: PropTypes.func.isRequired,
-  getEmployeeByEmail: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -310,5 +309,4 @@ export default connect(mapStateToProps, {
   updateOrganization,
   getAllLevels,
   getLevelByTitle,
-  getEmployeeByEmail,
 })(ManageOrg);

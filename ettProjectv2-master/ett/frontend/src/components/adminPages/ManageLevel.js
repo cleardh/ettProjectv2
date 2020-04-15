@@ -129,7 +129,11 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
                   />
                 </div>
               </fieldset>
-              <button type='submit' className='btn btn-primary block'>
+              <button
+                type='submit'
+                className='btn btn-primary block'
+                disabled={title === '' ? true : false}
+              >
                 Save
               </button>
             </form>

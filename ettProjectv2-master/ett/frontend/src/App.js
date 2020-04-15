@@ -13,7 +13,7 @@ import Alert from './components/layouts/Alert';
 
 const App = () => {
   useEffect(() => {
-    store.dispatch(loadUser());
+    localStorage.token && store.dispatch(loadUser());
   }, []);
 
   return (

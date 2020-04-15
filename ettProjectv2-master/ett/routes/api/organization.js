@@ -15,29 +15,46 @@ router.post(
     [
       check('title', 'Title is required').exists(),
       check('level', 'Level is required').exists(),
-      check('head', 'Head is required').exists()
-    ]
+      check('email', 'Head email is required').exists(),
+    ],
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { title, level, head } = req.body;
+    const { title, level, email } = req.body;
     try {
-      let organization = await Organization.findOne({ title, level, head });
-
+      let organization = await Organization.findOne({ title, level });
       if (organization) {
         return res.status(400).json({ msg: 'Organization already exists' });
       }
 
+      const head = await Employee.findOne({ email });
+      if (!head) return res.status(400).json({ msg: 'Head not found' });
+
       organization = new Organization({
         title,
         level,
-        head
+        head,
       });
 
       await organization.save();
+
+      // Add Head to Org
+      const newOrg = {
+        title: title,
+        level: level,
+        head: head,
+        members: [head],
+      };
+
+      organization = await Organization.findByIdAndUpdate(
+        organization._id,
+        { $set: newOrg },
+        { new: true }
+      );
+
       res.json(organization);
     } catch (err) {
       console.error(err.message);
@@ -56,7 +73,7 @@ router.get('/', auth, async (req, res) => {
       .populate('level', ['id', 'title'])
       .populate({
         path: 'members',
-        populate: { path: 'employee', model: 'employee' }
+        populate: { path: 'employee', model: 'employee' },
       });
     if (!organizations) {
       return res.status(400).json({ msg: 'Organization not found' });
@@ -78,7 +95,7 @@ router.get('/:id', auth, async (req, res) => {
       .populate('level', ['id', 'title'])
       .populate({
         path: 'members',
-        populate: { path: 'employee', model: 'employee' }
+        populate: { path: 'employee', model: 'employee' },
       });
     if (!organization) {
       return res.status(400).json({ msg: 'Organization not found' });
@@ -100,10 +117,10 @@ router.get('/level/:lvl', auth, async (req, res) => {
       .populate('level', ['id', 'title'])
       .populate({
         path: 'members',
-        populate: { path: 'employee', model: 'employee' }
+        populate: { path: 'employee', model: 'employee' },
       });
     const filteredOrganizations = organizations.filter(
-      org => org.level.title === req.params.lvl
+      (org) => org.level.title === req.params.lvl
     );
     if (!filteredOrganizations) {
       return res.status(400).json({ msg: 'Organization not found' });
@@ -121,13 +138,13 @@ router.get('/level/:lvl', auth, async (req, res) => {
 router.get('/title/:title', auth, async (req, res) => {
   try {
     const organization = await Organization.findOne({
-      title: req.params.title
+      title: req.params.title,
     })
       .populate('head', ['id', 'firstName', 'lastName', 'email'])
       .populate('level', ['id', 'title'])
       .populate({
         path: 'members',
-        populate: { path: 'employee', model: 'employee' }
+        populate: { path: 'employee', model: 'employee' },
       });
     if (!organization) {
       return res.status(400).json({ msg: 'Organization not found' });
@@ -149,10 +166,10 @@ router.get('/head/:headId', auth, async (req, res) => {
       .populate('level', ['id', 'title'])
       .populate({
         path: 'members',
-        populate: { path: 'employee', model: 'employee' }
+        populate: { path: 'employee', model: 'employee' },
       });
-    const filteredOrganizations = organizations.filter(
-      org => org.head.id === req.params.headId
+    const filteredOrganizations = organizations.filter((org) =>
+      org.head._id.equals(req.params.headId)
     );
     if (!filteredOrganizations) {
       return res.status(400).json({ msg: 'Organization not found' });
@@ -174,7 +191,7 @@ router.get('/member/:email', auth, async (req, res) => {
       .populate('level', ['id', 'title'])
       .populate({
         path: 'members',
-        populate: { path: 'employee', model: 'employee' }
+        populate: { path: 'employee', model: 'employee' },
       });
     const employee = await Employee.findOne({ email: req.params.email });
     if (!employee) {
@@ -182,9 +199,9 @@ router.get('/member/:email', auth, async (req, res) => {
     }
 
     let filteredOrganizations = [];
-    organizations.map(org =>
+    organizations.map((org) =>
       org.members.map(
-        m => m.email === employee.email && filteredOrganizations.push(org)
+        (m) => m.email === employee.email && filteredOrganizations.push(org)
       )
     );
 
@@ -222,13 +239,20 @@ router.put('/:orgId', auth, async (req, res) => {
       return res.status(400).json({ msg: 'Organization not found' });
     }
 
-    const { title, level, head } = req.body;
+    const { title, level, email } = req.body;
+
+    const head = await Employee.findOne({ email });
+    if (!head) {
+      return res.status(400).json({ msg: 'Head not found' });
+    }
 
     const newOrg = {
       title: title,
       level: level ? level : organization.level,
-      head: head ? head : organization.head,
-      members: organization.members
+      head: head,
+      members: !organization.members.includes(head._id)
+        ? [...organization.members, head]
+        : organization.members,
     };
 
     organization = await Organization.findByIdAndUpdate(
@@ -260,8 +284,8 @@ router.put('/:orgId/add-member', auth, async (req, res) => {
       level: organization.level,
       head: organization.head,
       members: !organization.members.includes(member._id)
-        ? organization.members.concat(member)
-        : organization.members
+        ? [...organization.members, member]
+        : organization.members,
     };
 
     organization = await Organization.findByIdAndUpdate(
@@ -292,9 +316,7 @@ router.put('/:orgId/:email', auth, async (req, res) => {
       title: organization.title,
       level: organization.level,
       head: organization.head,
-      members: organization.members.includes(member._id)
-        ? organization.members.filter(m => m === member._id)
-        : organization.members
+      members: organization.members.filter((m) => !m.equals(member._id)),
     };
 
     organization = await Organization.findByIdAndUpdate(

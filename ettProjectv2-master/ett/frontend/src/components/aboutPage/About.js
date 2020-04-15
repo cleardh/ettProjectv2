@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import IndNavbar from '../layouts/navbars/IndNavbar';
 import member1 from '../../assets/img/dkang.png';
 import member2 from '../../assets/img/JordanWeadick.jpg';
-import member3 from '../../assets/img/avatar03.png';
-import advisor from '../../assets/img/avatar04.png';
+import member3 from '../../assets/img/YasirKarapinar.png';
+import advisor from '../../assets/img/HarryScanlan.png';
 
 const About = ({ auth: { user } }) => {
   localStorage.setItem('component', 'About');

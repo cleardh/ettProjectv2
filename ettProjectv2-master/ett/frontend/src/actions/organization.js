@@ -23,24 +23,6 @@ export const addOrganization = (formData) => (dispatch, getState) => {
       tokenConfig(getState)
     )
     .then((res) => {
-      axios
-        .put(
-          `http://localhost:5000/api/organization/${res.data._id}/add-member`,
-          { member: formData.head },
-          tokenConfig(getState)
-        )
-        .then((res) =>
-          dispatch({
-            type: ADD_MEMBER,
-            payload: res.data,
-          })
-        )
-        .catch((err) =>
-          dispatch({
-            type: ORGANIZATION_ERROR,
-            payload: { msg: err.message },
-          })
-        );
       dispatch({
         type: ADD_ORGANIZATION,
         payload: res.data,
@@ -89,31 +71,12 @@ export const updateOrganization = (id, formData) => (dispatch, getState) => {
       formData,
       tokenConfig(getState)
     )
-    .then((res) => {
-      axios
-        .put(
-          `http://localhost:5000/api/organization/${res.data._id}/add-member`,
-          { member: formData.head },
-          tokenConfig(getState)
-        )
-        .then((res) => {
-          dispatch({
-            type: ADD_MEMBER,
-            payload: res.data,
-          });
-          dispatch(setAlert('Organization updated successfully', 'success'));
-        })
-        .catch((err) =>
-          dispatch({
-            type: ORGANIZATION_ERROR,
-            payload: { msg: err.message },
-          })
-        );
+    .then((res) =>
       dispatch({
         type: UPDATE_ORGANIZATION,
         payload: res.data,
-      });
-    })
+      })
+    )
     .catch((err) =>
       dispatch({
         type: ORGANIZATION_ERROR,

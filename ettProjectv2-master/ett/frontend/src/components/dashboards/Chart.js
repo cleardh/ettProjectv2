@@ -38,9 +38,6 @@ const Chart = ({ category, requestDays, org }) => {
         data={data}
         options={options}
       />
-      <div className='center-label'>
-        {category.isUnlimited ? 'Unltd' : `${requestDays} / ${category.limit}`}
-      </div>
     </Fragment>
   );
 };

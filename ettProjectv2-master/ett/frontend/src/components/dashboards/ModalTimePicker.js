@@ -60,8 +60,6 @@ const ModalTimePicker = ({
   const submitTime = () => {
     const startHour = Number(startTime.substr(0, 2));
     const endHour = Number(endTime.substr(0, 2));
-    console.log(startTime, endTime);
-    console.log(endHour, startHour, endHour - startHour);
 
     if (endHour - startHour === 5 || isAllday) {
       setTime({ start: startTime, end: endTime });

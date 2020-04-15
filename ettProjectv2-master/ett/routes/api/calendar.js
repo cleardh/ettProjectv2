@@ -65,8 +65,6 @@ router.post(
               .format('YYYY-MM-DD'),
           },
         };
-        console.log(params.start.date);
-        console.log(params.end.date);
       }
 
       cal.Events.insert(calendarId, params)
@@ -88,10 +86,9 @@ router.post(
           res.json(request);
         })
         .catch((err) => {
-          console.log('Error: insertEvent-' + err.message);
+          res.json({ error: 'Create event error' });
         });
     } catch (err) {
-      console.error(err.message);
       res.status(500).send('Server error');
     }
   }
@@ -104,12 +101,10 @@ router.delete('/:calendarId/:googleEventId', auth, async (req, res) => {
   };
   cal.Events.delete(req.params.calendarId, req.params.googleEventId, params)
     .then((result) => {
-      console.log(result);
-
       res.json(result);
     })
     .catch((err) => {
-      console.log('Error deleteEvent:' + err.message);
+      res.json({ error: 'Delete event error' });
     });
 });
 

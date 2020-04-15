@@ -5,6 +5,7 @@ import { CirclePicker } from 'react-color';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import Loading from '../layouts/Loading';
+import { getAllRequests, deleteRequest } from '../../actions/request';
 import {
   addCategory,
   deleteCategory,
@@ -16,6 +17,9 @@ import { setAlert } from '../../actions/alert';
 
 const ManageCategory = ({
   category,
+  request,
+  deleteRequest,
+  getAllRequests,
   addCategory,
   deleteCategory,
   updateCategory,
@@ -24,9 +28,14 @@ const ManageCategory = ({
   setAlert,
 }) => {
   localStorage.setItem('component', 'ManageCategory');
+
   useEffect(() => {
     getAllCategories();
   }, [getAllCategories, category.categories]);
+
+  useEffect(() => {
+    getAllRequests();
+  }, [getAllRequests]);
 
   const [btn, setBtn] = useState('add');
   const [colorPickerDisplay, setColorPickerDisplay] = useState('none');
@@ -270,93 +279,11 @@ const ManageCategory = ({
                       </td>
                       <td align='center'>
                         <div className='form-group'>
-                          <input
-                            type='hidden'
-                            className='form-control category-input'
-                            name='color'
-                            value={color}
-                          />
                           <div
                             className='color-code color-input'
                             style={{ background: color }}
                             onClick={(e) => setColorPickerDisplay('')}
                           ></div>
-                          <div style={{ display: colorPickerDisplay }}>
-                            <div
-                              className='modal'
-                              style={{
-                                position: 'absolute',
-                                display: 'block',
-                                top: '40%',
-                              }}
-                            >
-                              <div className='modal-dialog' role='document'>
-                                <div className='modal-content'>
-                                  <div className='modal-header'>
-                                    <h5 className='modal-title modal-admin-title'>
-                                      Select Color
-                                    </h5>
-                                    <div
-                                      className='current-color'
-                                      style={{
-                                        borderColor:
-                                          !circlePickerValue && 'transparent',
-                                      }}
-                                    >
-                                      {circlePickerValue}
-                                    </div>
-                                    <button
-                                      type='button'
-                                      className='close'
-                                      data-dismiss='modal'
-                                      aria-label='Close'
-                                      onClick={(e) =>
-                                        setColorPickerDisplay('none')
-                                      }
-                                    >
-                                      <span aria-hidden='true'>&times;</span>
-                                    </button>
-                                  </div>
-                                  <div className='modal-body'>
-                                    <CirclePicker
-                                      width='450px'
-                                      colors={[
-                                        '#FF9AA2',
-                                        '#FFB7B2',
-                                        '#B5EAD7',
-                                        '#C7CEEA',
-                                        '#C36F31',
-                                        '#DDA982',
-                                        '#CAB39F',
-                                        '#FF9CEE',
-                                        '#85E3FF',
-                                      ]}
-                                      onChangeComplete={(c, e) =>
-                                        setCirclePickerValue(c.hex)
-                                      }
-                                    />
-                                  </div>
-                                  <div className='modal-footer'>
-                                    <button
-                                      type='button'
-                                      className='btn btn-primary'
-                                      onClick={(e) => setColorAndClose(e)}
-                                    >
-                                      Save changes
-                                    </button>
-                                    <button
-                                      type='button'
-                                      className='btn btn-secondary'
-                                      data-dismiss='modal'
-                                      onClick={(e) => cancelColorPicker(e)}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
                         </div>
                       </td>
                       <td align='right'>
@@ -364,7 +291,7 @@ const ManageCategory = ({
                           className='btn btn-outline-secondary btn-add'
                           type='button'
                           name='new_role'
-                          disabled={(!title || !color) && true}
+                          disabled={!title || !color ? true : false}
                           onClick={(e) => addOrEdit(e)}
                         >
                           {btn === 'add' ? (
@@ -377,6 +304,93 @@ const ManageCategory = ({
                     </tr>
                   </tbody>
                 </table>
+
+                {/* ColorPicker Popup */}
+                <div style={{ display: colorPickerDisplay }}>
+                  <div
+                    className='modal'
+                    style={{
+                      position: 'absolute',
+                      display: 'block',
+                      top: '35%',
+                      left: '0%',
+                    }}
+                  >
+                    <div className='modal-dialog' role='document'>
+                      <div className='modal-content'>
+                        <div className='modal-header'>
+                          <h5 className='modal-title modal-admin-title'>
+                            Select Color
+                          </h5>
+
+                          <div className='form-group'>
+                            <input
+                              type='text'
+                              className='form-control'
+                              style={{
+                                width: '8em',
+                                textTransform: 'uppercase',
+                              }}
+                              id='inputDefault'
+                              name='circlePickerValue'
+                              value={circlePickerValue}
+                              onChange={(e) =>
+                                setCirclePickerValue(e.target.value)
+                              }
+                            />
+                          </div>
+
+                          <button
+                            type='button'
+                            className='close'
+                            data-dismiss='modal'
+                            aria-label='Close'
+                            onClick={(e) => setColorPickerDisplay('none')}
+                          >
+                            <span aria-hidden='true'>&times;</span>
+                          </button>
+                        </div>
+                        <div className='modal-body'>
+                          <CirclePicker
+                            width='450px'
+                            colors={[
+                              '#FF9AA2',
+                              '#FFB7B2',
+                              '#B5EAD7',
+                              '#C7CEEA',
+                              '#C36F31',
+                              '#DDA982',
+                              '#CAB39F',
+                              '#FF9CEE',
+                              '#85E3FF',
+                            ]}
+                            onChangeComplete={(c, e) =>
+                              setCirclePickerValue(c.hex)
+                            }
+                          />
+                        </div>
+                        <div className='modal-footer'>
+                          <button
+                            type='button'
+                            className='btn btn-primary'
+                            onClick={(e) => setColorAndClose(e)}
+                          >
+                            Save changes
+                          </button>
+                          <button
+                            type='button'
+                            className='btn btn-secondary'
+                            data-dismiss='modal'
+                            onClick={(e) => cancelColorPicker(e)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* ColorPicker Popup */}
 
                 {/* Toast Confirm Delete */}
                 {selectedCategory && (
@@ -406,7 +420,7 @@ const ManageCategory = ({
                     </div>
                     <div className='toast-body'>
                       <div className='delete-msg'>
-                        {`Do you really want to delele ${selectedCategory.title} category?`}
+                        {`Deleting ${selectedCategory.title} category requires deleting all requests of the category`}
                       </div>
                       <div>
                         <button
@@ -414,6 +428,11 @@ const ManageCategory = ({
                           className='btn btn-danger btn-lg btn-block'
                           onClick={(e) => {
                             deleteCategory(selectedCategory._id);
+                            request.requests.map(
+                              (r) =>
+                                r.category._id === selectedCategory._id &&
+                                deleteRequest(r)
+                            );
                             setShowDeleteConfirm({
                               displayDelete: 'none',
                               selectedCategory: null,
@@ -432,6 +451,11 @@ const ManageCategory = ({
                   type='button'
                   className='btn btn-danger block'
                   onClick={(e) => cancel(e)}
+                  disabled={
+                    title === '' && limit === '' && !isUnlimited && color === ''
+                      ? true
+                      : false
+                  }
                 >
                   Cancel
                 </button>
@@ -448,6 +472,9 @@ const ManageCategory = ({
 
 ManageCategory.propTypes = {
   category: PropTypes.object,
+  request: PropTypes.object,
+  getAllRequests: PropTypes.func.isRequired,
+  deleteRequest: PropTypes.func.isRequired,
   addCategory: PropTypes.func.isRequired,
   deleteCategory: PropTypes.func.isRequired,
   updateCategory: PropTypes.func.isRequired,
@@ -458,9 +485,12 @@ ManageCategory.propTypes = {
 
 const mapStateToProps = (state) => ({
   category: state.category,
+  request: state.request,
 });
 
 export default connect(mapStateToProps, {
+  getAllRequests,
+  deleteRequest,
   addCategory,
   deleteCategory,
   updateCategory,

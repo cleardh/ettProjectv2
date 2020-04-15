@@ -413,6 +413,12 @@ const IndDashboard = ({
                     category={c}
                     requestDays={getConfirmedRequestsByCategory(c._id)}
                   />
+
+                  <div className='center-label'>
+                    {c.isUnlimited
+                      ? 'Unltd'
+                      : `${getConfirmedRequestsByCategory(c._id)} / ${c.limit}`}
+                  </div>
                 </div>
               ))}
             {/* End Chart */}

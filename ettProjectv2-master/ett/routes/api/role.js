@@ -25,7 +25,7 @@ router.post(
 
       role = new Role({
         title,
-        isAdmin
+        isAdmin,
       });
 
       await role.save();

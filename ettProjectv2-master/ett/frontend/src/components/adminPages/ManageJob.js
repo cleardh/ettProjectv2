@@ -134,6 +134,7 @@ const ManageJob = ({ job, addJob, deleteJob, getAllJobs }) => {
                           title: '',
                         });
                       }}
+                      disabled={title === '' ? true : false}
                     >
                       <i className='fas fa-plus'></i>
                     </button>

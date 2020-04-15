@@ -296,11 +296,6 @@ const GrpDashboard = ({
                       requestDays={totalRequestsByCategory(c._id, year)}
                       org={org.organization}
                     />
-                    {/* <div className='center-label'>
-                    {c.isUnlimited
-                      ? 'Unltd'
-                      : `${getConfirmedRequestsByCategory(c._id)} / ${c.limit}`}
-                  </div> */}
                   </div>
                 ))}
               {/* End Chart */}
@@ -331,8 +326,8 @@ const GrpDashboard = ({
                       className='list-group-item fw-500 pendinglist'
                     >
                       <div className='lh-20'>
-                        <span className='member-cell'>{r.user.email}</span>
-                        <span
+                        <div className='member-cell'>{r.user.email}</div>
+                        <div
                           className='member-cell'
                           style={{
                             width: '125px',
@@ -347,32 +342,29 @@ const GrpDashboard = ({
                           >
                             {r.category.title}
                           </span>
-                        </span>
-                        <span
+                        </div>
+                        <div
                           className='member-cell'
                           style={{ textAlign: 'center' }}
                         >
                           {moment(r.dateS)
                             .tz('America/Toronto')
                             .format('YYYY-MM-DD HH:mm')}
-                        </span>
-                        <span
+                        </div>
+                        <div
                           className='member-cell'
                           style={{ textAlign: 'center' }}
                         >
                           {moment(r.dateE)
                             .tz('America/Toronto')
                             .format('YYYY-MM-DD HH:mm')}
-                        </span>
-                        <span
-                          className='member-cell'
-                          style={{ width: '170px' }}
-                        >
+                        </div>
+                        <div className='member-cell' style={{ width: '170px' }}>
                           <span
                             className='sm-btn'
                             style={{
                               marginRight: '2em',
-                              marginLeft: '3em',
+                              marginLeft: '2em',
                             }}
                             onClick={(e) => confirm(r)}
                           >
@@ -384,7 +376,7 @@ const GrpDashboard = ({
                           >
                             <i className='fas fa-times-circle decline'></i>
                           </span>
-                        </span>
+                        </div>
                       </div>
                     </li>
                   ))}

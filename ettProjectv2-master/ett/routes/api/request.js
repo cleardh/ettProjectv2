@@ -37,11 +37,12 @@ router.post(
       const requests = await Request.find()
         .populate('user', ['id'])
         .populate('category', ['title']);
+      console.log(requests);
 
       let request = await Request.findOne({ user: employee, dateS });
       const overlaps = requests.filter(
         (r) =>
-          r.user._id === employee._id &&
+          r.user._id.equals(employee._id) &&
           ((r.dateS <= dateS && dateS <= r.dateE) ||
             (r.dateS <= dateE && dateE <= r.dateE))
       );
@@ -132,8 +133,8 @@ router.get('/:employeeId', auth, async (req, res) => {
     const requests = await Request.find()
       .populate('user', ['id', 'email', 'calendarId'])
       .populate('category', ['id', 'title', 'color']);
-    const requestsByUser = requests.filter(
-      (request) => request.user.id === employee.id
+    const requestsByUser = requests.filter((request) =>
+      request.user._id.equals(employee._id)
     );
     if (!requestsByUser) {
       return res.status(400).json({ msg: 'Request not found' });
@@ -155,7 +156,8 @@ router.get('/confirmed/:employeeid', auth, async (req, res) => {
       .populate('user', ['id', 'email', 'calendarId'])
       .populate('category', ['id', 'title', 'color']);
     const requestsByUser = requests.filter(
-      (request) => request.user === employee && request.isConfirmed === true
+      (request) =>
+        request.user._id.equals(employee._id) && request.isConfirmed === true
     );
     if (!requestsByUser) {
       return res.status(400).json({ msg: 'Request not found' });
@@ -178,9 +180,9 @@ router.get('/confirmed/:employeeid/:categoryId', auth, async (req, res) => {
       .populate('category', ['id', 'title', 'color']);
     const requestsByUser = requests.filter(
       (request) =>
-        request.user === employee &&
+        request.user._id.equals(employee._id) &&
         request.isConfirmed === true &&
-        request.category.id === req.params.categoryId
+        request.category._id.equals(req.params.categoryId)
     );
     if (!requestsByUser) {
       return res.status(400).json({ msg: 'Request not found' });
@@ -251,21 +253,26 @@ router.post('/report', auth, async (req, res) => {
     if (start && end) {
       requests = requests.filter(
         (r) =>
-          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') >= start &&
-          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') <= end
+          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') >=
+            moment(start).tz('America/Toronto').format('YYYY-MM-DD') &&
+          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') <=
+            moment(end).tz('America/Toronto').format('YYYY-MM-DD')
       );
     } else if (start) {
       requests = requests.filter(
         (r) =>
-          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') >= start
+          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') >=
+          moment(start).tz('America/Toronto').format('YYYY-MM-DD')
       );
     } else if (end) {
       requests = requests.filter(
-        (r) => moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') <= end
+        (r) =>
+          moment(r.dateS).tz('America/Toronto').format('YYYY-MM-DD') <=
+          moment(end).tz('America/Toronto').format('YYYY-MM-DD')
       );
     }
 
-    if (!requests) {
+    if (requests.length < 1) {
       return res.status(400).json({ msg: 'Request not found' });
     }
 
