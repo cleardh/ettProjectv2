@@ -23,7 +23,6 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    console.log(req.body);
 
     const {
       firstName,
@@ -130,7 +129,6 @@ router.put('/:id', auth, async (req, res) => {
       calendarId: calendarId ? calendarId : employee.calendarId,
       image: employee.image,
     };
-    console.log(newEmployee.dateHired);
 
     employee = await Employee.findByIdAndUpdate(
       req.params.id,

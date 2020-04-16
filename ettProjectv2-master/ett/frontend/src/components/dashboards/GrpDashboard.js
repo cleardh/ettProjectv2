@@ -306,7 +306,14 @@ const GrpDashboard = ({
               <ul className='list-group grp-listgroup'>
                 <li className='list-group-item active'>PENDING REQUESTS</li>
                 {request.requests
-                  .filter((r) => !r.isConfirmed)
+                  .filter(
+                    (r) =>
+                      !r.isConfirmed &&
+                      moment(r.dateS)
+                        .tz('America/Toronto')
+                        .format('YYYY-MM-DD') >=
+                        moment().tz('America/Toronto').format('YYYY-MM-DD')
+                  )
                   .sort((a, b) => {
                     if (
                       moment(a.dateS).tz('America/Toronto') <
@@ -350,15 +357,33 @@ const GrpDashboard = ({
                         >
                           {moment(r.dateS)
                             .tz('America/Toronto')
-                            .format('YYYY-MM-DD HH:mm')}
+                            .format('HH:mm') === '00:00' &&
+                          moment(r.dateE)
+                            .tz('America/Toronto')
+                            .format('HH:mm') === '23:59'
+                            ? moment(r.dateS)
+                                .tz('America/Toronto')
+                                .format('YYYY-MM-DD')
+                            : moment(r.dateS)
+                                .tz('America/Toronto')
+                                .format('YYYY-MM-DD HH:mm')}
                         </div>
                         <div
                           className='member-cell'
                           style={{ textAlign: 'center' }}
                         >
-                          {moment(r.dateE)
+                          {moment(r.dateS)
                             .tz('America/Toronto')
-                            .format('YYYY-MM-DD HH:mm')}
+                            .format('HH:mm') === '00:00' &&
+                          moment(r.dateE)
+                            .tz('America/Toronto')
+                            .format('HH:mm') === '23:59'
+                            ? moment(r.dateE)
+                                .tz('America/Toronto')
+                                .format('YYYY-MM-DD')
+                            : moment(r.dateE)
+                                .tz('America/Toronto')
+                                .format('YYYY-MM-DD HH:mm')}
                         </div>
                         <div className='member-cell' style={{ width: '170px' }}>
                           <span

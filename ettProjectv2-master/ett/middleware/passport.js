@@ -23,12 +23,10 @@ passport.use(
     },
     (accessToken, refreshToken, profile, done) => {
       // check if employee already exists in our db
-      // console.log(profile);
       Employee.findOne({ email: profile.emails[0].value })
         .then((currentEmployee) => {
           if (currentEmployee) {
             // already have the employee
-            // console.log('employee is: ', currentEmployee);
             done(null, currentEmployee);
           } else {
             // if not, create employee in our db
@@ -45,7 +43,6 @@ passport.use(
             })
               .save()
               .then((newEmployee) => {
-                // console.log('New employee created: ', newEmployee);
                 done(null, newEmployee);
               });
           }

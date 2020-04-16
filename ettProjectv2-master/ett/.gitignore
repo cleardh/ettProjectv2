@@ -1,4 +1,4 @@
 node_modules/
 config/googleapi-key.json
 config/default.json
-apiGoogleconfig.json
+frontend/apiGoogleconfig.json

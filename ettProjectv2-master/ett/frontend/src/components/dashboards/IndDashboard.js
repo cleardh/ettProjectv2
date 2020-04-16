@@ -261,7 +261,7 @@ const IndDashboard = ({
       moment(event.dateS).tz('America/Toronto').format('YYYY-MM-DD') <
       moment().tz('America/Toronto').format('YYYY-MM-DD')
     ) {
-      setAlert('Old requests cannot be revoked', 'danger');
+      setAlert('Past requests cannot be revoked', 'danger');
     } else {
       deleteRequest(event);
     }

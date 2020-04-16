@@ -29,12 +29,15 @@ export const addOrganization = (formData) => (dispatch, getState) => {
       });
       dispatch(setAlert('Organization added successfully', 'success'));
     })
-    .catch((err) =>
+    .catch((err) => {
+      if (err.response.data.msg) {
+        dispatch(setAlert(err.response.data.msg, 'danger'));
+      }
       dispatch({
         type: ORGANIZATION_ERROR,
         payload: { msg: err.message },
-      })
-    );
+      });
+    });
 };
 
 export const deleteOrganization = (id) => (dispatch, getState) => {

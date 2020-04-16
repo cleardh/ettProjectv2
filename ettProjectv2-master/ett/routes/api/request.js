@@ -282,7 +282,6 @@ router.post('/report', auth, async (req, res) => {
 
     fs.writeFile('ett.csv', csv, (err) => {
       if (err) throw err;
-      console.log('CSV Report generated successfully!');
     });
 
     res.json({ file: 'ett.csv' });
