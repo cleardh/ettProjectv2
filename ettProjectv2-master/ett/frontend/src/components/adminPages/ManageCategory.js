@@ -437,6 +437,13 @@ const ManageCategory = ({
                               displayDelete: 'none',
                               selectedCategory: null,
                             });
+                            setNewCategory({
+                              title: '',
+                              limit: '',
+                              isUnlimited: false,
+                              color: '',
+                            });
+                            setBtn('add');
                           }}
                         >
                           Delete

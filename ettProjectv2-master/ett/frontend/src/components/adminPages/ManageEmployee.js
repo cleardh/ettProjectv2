@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import PropTypes from 'prop-types';
 import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
@@ -263,11 +263,13 @@ const ManageEmployee = ({
                   className='form-control'
                   name='_dateHired'
                   id='dateHired'
-                  value={moment(_dateHired).add(1, 'days').format('YYYY-MM-DD')}
+                  value={moment(_dateHired)
+                    .add(5, 'hours')
+                    .format('YYYY-MM-DD')}
                   onChange={(e) =>
                     setEmp({
                       ...emp,
-                      _dateHired: moment(e.target.value),
+                      _dateHired: e.target.value,
                     })
                   }
                 />

@@ -314,8 +314,12 @@ const IndDashboard = ({
                 <table className='tbl'>
                   <tbody>
                     <tr>
-                      <td className='fw-500'>{employee.employee.job.title}</td>
-                      <td className='fw-500'>{employee.employee.role.title}</td>
+                      <td className='fw-500'>
+                        {employee.employee.job && employee.employee.job.title}
+                      </td>
+                      <td className='fw-500'>
+                        {employee.employee.role && employee.employee.role.title}
+                      </td>
                     </tr>
                     <tr>
                       <td className='fw-500'>{employee.employee.email}</td>
@@ -326,7 +330,7 @@ const IndDashboard = ({
                         employee.employee.dateHired
                       )
                         .tz('America/Toronto')
-                        .add(1, 'days')
+                        .add(5, 'hours')
                         .format('MMMM DD, YYYY')}`}</td>
                       <td></td>
                     </tr>

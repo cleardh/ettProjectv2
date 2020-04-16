@@ -48,7 +48,6 @@ export const deleteOrganization = (id) => (dispatch, getState) => {
         type: DELETE_ORGANIZATION,
         payload: res.data,
       });
-      dispatch(setAlert('Organization deleted successfully', 'success'));
     })
     .catch((err) =>
       dispatch({

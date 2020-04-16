@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
+import { v4 as uuidv4 } from 'uuid';
 import {
   getAllOrganizations,
   getOrganizationByTitle,
@@ -100,7 +101,7 @@ const GrpDashboard = ({
     title && getOrganizationByTitle(title);
   }, [getOrganizationByTitle, title]);
 
-  if (user.role.title === 'Employee') {
+  if (user.role && user.role.title === 'Employee') {
     return <Redirect to='/dashboard/individual' />;
   }
 
@@ -390,7 +391,7 @@ const GrpDashboard = ({
                 <li className='list-group-item active'>ALL MEMBERS</li>
                 {org.organization.members.map((m, i) => (
                   <li
-                    key={m._id}
+                    key={uuidv4()}
                     className='list-group-item fw-500 member-row'
                     onClick={(e) =>
                       history.push({

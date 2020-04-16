@@ -59,9 +59,7 @@ const Register = ({
       setFormData({
         _role: userinfo.role ? userinfo.role.title : '',
         _job: userinfo.job ? userinfo.job.title : '',
-        _dateHired: userinfo.dateHired
-          ? moment(userinfo.dateHired).format('YYYY-MM-DD')
-          : '',
+        _dateHired: userinfo.dateHired ? userinfo.dateHired : '',
         _phone: userinfo.phone ? userinfo.phone : '',
         _calendarId: userinfo.calendarId ? userinfo.calendarId : '',
       });
@@ -102,17 +100,15 @@ const Register = ({
     if (_role && _job && _dateHired && _phone && _calendarId) {
       if (validateUniqueCalId(_calendarId)) {
         if (
-          moment(_dateHired).format('YYYY-MM-DD') >
-          moment().format('YYYY-MM-DD')
+          moment(_dateHired).tz('America/Toronto').format('YYYY-MM-DD') >
+          moment().tz('America/Toronto').format('YYYY-MM-DD')
         ) {
           setAlert('Date Hired cannot be in the future', 'danger');
         } else {
           const body = {
             role: role.role,
             job: job.job,
-            dateHired: moment(_dateHired)
-              .tz('America/Toronto')
-              .format('YYYY-MM-DD'),
+            dateHired: _dateHired,
             phone: _phone,
             calendarId: _calendarId,
           };

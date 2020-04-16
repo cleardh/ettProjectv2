@@ -58,8 +58,8 @@ export const addRequest = (formData, calendarId) => (dispatch, getState) => {
 
 export const deleteRequest = (request) => (dispatch, getState) => {
   if (
-    moment(request.dateS).tz('Ameraca/Toronto').format('YYYY-MM-DD') <
-    moment().tz('Ameraca/Toronto').format('YYYY-MM-DD')
+    moment(request.dateS).tz('America/Toronto').format('YYYY-MM-DD') <
+    moment().tz('America/Toronto').format('YYYY-MM-DD')
   ) {
     dispatch(setAlert('Past request', 'danger'));
   } else {
@@ -111,7 +111,6 @@ export const generateReport = (dateRange) => (dispatch, getState) => {
       )
     )
     .catch((err) => {
-      console.log(err.response);
       err.response.data.msg === 'Request not found' &&
         dispatch(setAlert('No record found', 'danger'));
       dispatch({
@@ -226,8 +225,8 @@ export const getConfirmedRequestsByEmployeeCategory = (
 
 export const confirmRequest = (request) => (dispatch, getState) => {
   if (
-    moment(request.dateS).tz('Ameraca/Toronto').format('YYYY-MM-DD') <
-    moment().tz('Ameraca/Toronto').format('YYYY-MM-DD')
+    moment(request.dateS).tz('America/Toronto').format('YYYY-MM-DD') <
+    moment().tz('America/Toronto').format('YYYY-MM-DD')
   ) {
     dispatch(setAlert('Past request', 'danger'));
   } else {

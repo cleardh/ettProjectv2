@@ -5,12 +5,29 @@ import AdmNavbar from '../layouts/navbars/AdmNavbar';
 import AdminSidebar from './AdminSidebar';
 import { getAllLevels, addLevel, deleteLevel } from '../../actions/level';
 import Loading from '../layouts/Loading';
+import {
+  getAllOrganizations,
+  deleteOrganization,
+} from '../../actions/organization';
 
-const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
+const ManageLevel = ({
+  level,
+  org,
+  getAllLevels,
+  addLevel,
+  deleteLevel,
+  getAllOrganizations,
+  deleteOrganization,
+}) => {
   localStorage.setItem('component', 'ManageLevel');
+
   useEffect(() => {
     getAllLevels();
   }, [getAllLevels, level.levels.length]);
+
+  useEffect(() => {
+    getAllOrganizations();
+  }, [getAllOrganizations]);
 
   const [title, setTitle] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState({
@@ -93,13 +110,20 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
                     </div>
                     <div className='toast-body'>
                       <div className='delete-msg'>
-                        {`Do you really want to delele ${selectedLevel.title} level?`}
+                        {`Deleting ${selectedLevel.title} level requires deleting all organizations of the level`}
                       </div>
                       <div>
                         <button
                           type='button'
                           className='btn btn-danger btn-lg btn-block'
                           onClick={(e) => {
+                            org.organizations &&
+                              org.organizations.length > 0 &&
+                              org.organizations.map(
+                                (o) =>
+                                  o.level._id === selectedLevel._id &&
+                                  deleteOrganization(o._id)
+                              );
                             deleteLevel(selectedLevel._id);
                             setShowDeleteConfirm({
                               displayDelete: 'none',
@@ -148,17 +172,23 @@ const ManageLevel = ({ level, getAllLevels, addLevel, deleteLevel }) => {
 
 ManageLevel.propTypes = {
   level: PropTypes.object,
+  org: PropTypes.object,
   getAllLevels: PropTypes.func.isRequired,
   addLevel: PropTypes.func.isRequired,
   deleteLevel: PropTypes.func.isRequired,
+  getAllOrganizations: PropTypes.func.isRequired,
+  deleteOrganization: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   level: state.level,
+  org: state.organization,
 });
 
 export default connect(mapStateToProps, {
   getAllLevels,
   addLevel,
   deleteLevel,
+  getAllOrganizations,
+  deleteOrganization,
 })(ManageLevel);

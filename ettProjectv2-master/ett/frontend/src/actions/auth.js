@@ -68,11 +68,6 @@ export const authenticate = () => (dispatch, getState) => {
         });
     })
     .catch((err) => {
-      // const errors = err.response.data.errors;
-      // if (errors) {
-      // errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
-      console.error(err);
-      // }
       dispatch({ type: LOGIN_FAIL });
     });
 };

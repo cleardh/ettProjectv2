@@ -1,6 +1,7 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
 const router = express.Router();
+const moment = require('moment-timezone');
 const auth = require('../../middleware/auth');
 const Employee = require('../../models/Employee');
 
@@ -122,11 +123,15 @@ router.put('/:id', auth, async (req, res) => {
       email: employee.email,
       role: role ? role : employee.role,
       job: job ? job : employee.job,
-      dateHired: dateHired ? dateHired : employee.dateHired,
+      dateHired: dateHired
+        ? moment(dateHired).tz('America/Toronto')
+        : moment(employee.dateHired).tz('America/Toronto'),
       phone: phone ? phone : employee.phone,
       calendarId: calendarId ? calendarId : employee.calendarId,
       image: employee.image,
     };
+    console.log(newEmployee.dateHired);
+
     employee = await Employee.findByIdAndUpdate(
       req.params.id,
       { $set: newEmployee },

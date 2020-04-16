@@ -56,7 +56,7 @@ const AdminSidebar = ({ current, auth: { user }, history }) => {
               current === 'report' ? 'admin-list active' : 'admin-list'
             }
           >
-            <Link to='/admin/report'>GENERATE REPORT</Link>
+            <Link to='/admin/report'>REPORT</Link>
           </li>
         </ul>
       </nav>
@@ -66,11 +66,11 @@ const AdminSidebar = ({ current, auth: { user }, history }) => {
 
 AdminSidebar.propTypes = {
   auth: PropTypes.object,
-  current: PropTypes.string
+  current: PropTypes.string,
 };
 
-const mapStateToProps = state => ({
-  auth: state.auth
+const mapStateToProps = (state) => ({
+  auth: state.auth,
 });
 
 export default connect(mapStateToProps)(withRouter(AdminSidebar));

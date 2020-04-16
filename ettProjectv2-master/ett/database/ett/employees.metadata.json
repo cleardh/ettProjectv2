@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"ett.employees"},{"v":2,"unique":true,"key":{"email":1},"name":"email_1","ns":"ett.employees","background":true},{"v":2,"unique":true,"key":{"calendarId":1},"name":"calendarId_1","ns":"ett.employees","background":true}],"uuid":"f024d269ad9b41d5a069d6580b996af0"}

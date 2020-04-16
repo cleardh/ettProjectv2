@@ -11,11 +11,11 @@ import {
   updateOrganization,
 } from '../../actions/organization';
 import { getAllLevels, getLevelByTitle } from '../../actions/level';
+import { setAlert } from '../../actions/alert';
 import Loading from '../layouts/Loading';
 
 const ManageOrg = ({
   level,
-  employee,
   organization,
   getAllOrganizations,
   getOrganizationByTitle,
@@ -24,6 +24,7 @@ const ManageOrg = ({
   updateOrganization,
   getAllLevels,
   getLevelByTitle,
+  setAlert,
 }) => {
   localStorage.setItem('component', 'ManageOrg');
 
@@ -193,6 +194,10 @@ const ManageOrg = ({
                           className='btn btn-danger btn-lg btn-block'
                           onClick={(e) => {
                             deleteOrganization(selectedOrg._id);
+                            setAlert(
+                              'Organization deleted successfully',
+                              'success'
+                            );
                             setShowDeleteConfirm({
                               displayDelete: 'none',
                               selectedOrg: null,
@@ -285,7 +290,6 @@ const ManageOrg = ({
 ManageOrg.propTypes = {
   level: PropTypes.object,
   organization: PropTypes.object,
-  employee: PropTypes.object,
   getAllOrganizations: PropTypes.func.isRequired,
   getOrganizationByTitle: PropTypes.func.isRequired,
   addOrganization: PropTypes.func.isRequired,
@@ -293,12 +297,12 @@ ManageOrg.propTypes = {
   updateOrganization: PropTypes.func.isRequired,
   getAllLevels: PropTypes.func.isRequired,
   getLevelByTitle: PropTypes.func.isRequired,
+  setAlert: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   level: state.level,
   organization: state.organization,
-  employee: state.employee,
 });
 
 export default connect(mapStateToProps, {
@@ -309,4 +313,5 @@ export default connect(mapStateToProps, {
   updateOrganization,
   getAllLevels,
   getLevelByTitle,
+  setAlert,
 })(ManageOrg);
